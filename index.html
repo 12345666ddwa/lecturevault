@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LectureVault</title>
+<script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js" type="module"></script>
+<style>
+:root{
+  --bg:#1A1D20;--bg2:#22262A;--bg3:#2A2F34;--text:#D4D4D4;--t2:#8B8F94;--t3:#5A5E63;
+  --accent:#6DB58A;--ad:rgba(109,181,138,0.15);--warn:#F59E0B;--wd:rgba(245,158,11,0.15);
+  --danger:#EF4444;--info:#60A5FA;--id:rgba(96,165,250,0.12);--p:#C084FC;
+  --brd:rgba(255,255,255,0.06);--r:12px;--rs:8px;
+  --ff:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+}
+.light{
+  --bg:#FAFAF8;--bg2:#FFF;--bg3:#F3F3F0;--text:#2D2D2D;--t2:#6B6B6B;--t3:#A0A0A0;
+  --accent:#7D9B76;--ad:rgba(125,155,118,0.1);--warn:#D97706;--wd:rgba(217,119,6,0.1);
+  --danger:#DC2626;--info:#3B82F6;--id:rgba(59,130,246,0.1);--brd:rgba(0,0,0,0.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);min-height:100vh;transition:background .4s,color .4s;}
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* Sidebar */
+.sb{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--brd);display:flex;flex-direction:column;padding:16px 10px;z-index:10;}
+.lg{font-size:1.05em;font-weight:700;color:var(--accent);padding:8px 12px;margin-bottom:16px;display:flex;align-items:center;gap:8px;cursor:pointer;}
+.lg .d{width:9px;height:9px;background:var(--accent);border-radius:50%;box-shadow:0 0 10px var(--accent);}
+.si{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:var(--rs);color:var(--t2);font-size:.85em;cursor:pointer;transition:all .2s;margin-bottom:1px;border:none;background:none;width:100%;text-align:left;font-family:var(--ff);}
+.si:hover{background:var(--bg3);color:var(--text);}
+.si.ac{background:var(--ad);color:var(--accent);font-weight:600;}
+.si .ic{font-size:1.15em;width:22px;text-align:center;}
+.sb-badge{margin-left:auto;font-size:.68em;background:var(--ad);color:var(--accent);padding:2px 8px;border-radius:10px;font-weight:600;}
+.divider{height:1px;background:var(--brd);margin:10px 0;}
+.cm{flex:1;overflow-y:auto;}
+.ci{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--rs);cursor:pointer;font-size:.8em;color:var(--t2);transition:all .2s;}
+.ci:hover{background:var(--bg3);}
+.ci .dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.tb{padding:10px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--brd);background:var(--bg2);}
+.bc{font-size:.82em;color:var(--t2);}
+.sbox{margin-left:auto;background:var(--bg);border:1px solid var(--brd);border-radius:18px;padding:6px 12px;width:220px;display:flex;align-items:center;gap:6px;position:relative;}
+.sbox input{border:none;background:transparent;color:var(--text);font-size:.8em;outline:none;width:100%;font-family:var(--ff);}
+.sbox:focus-within{border-color:var(--accent);}
+.sbox kbd{font-size:.7em;background:var(--bg3);padding:1px 5px;border-radius:4px;border:1px solid var(--brd);}
+.thm{width:32px;height:32px;border-radius:50%;border:1px solid var(--brd);background:var(--bg);cursor:pointer;font-size:1em;}
+.ct{flex:1;overflow-y:auto;padding:20px 24px;}
+.page{display:none;animation:fi .35s ease;}
+.page.ac{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+h1{font-size:1.5em;font-weight:700;margin-bottom:4px;}
+.sub{color:var(--t2);font-size:.88em;margin-bottom:20px;}
+
+/* Buttons */
+.btn{padding:10px 18px;border-radius:var(--rs);border:none;cursor:pointer;font-size:.85em;font-weight:600;transition:all .2s;font-family:var(--ff);}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{box-shadow:0 0 18px var(--ad);transform:translateY(-1px);}
+.btn-o{background:transparent;border:1px solid var(--brd);color:var(--t2);}
+.btn-o:hover{border-color:var(--accent);color:var(--accent);}
+.btn-sm{padding:5px 12px;font-size:.75em;}
+.btn-d{background:transparent;border:1px solid var(--danger);color:var(--danger);font-size:.75em;}
+
+/* Cards */
+.card{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);padding:18px;margin-bottom:10px;transition:all .2s;}
+.card:hover{border-color:var(--accent);cursor:pointer;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.kpi{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);padding:18px;}
+.kpi .l{font-size:.75em;color:var(--t2);margin-bottom:4px;}
+.kpi .v{font-size:1.8em;font-weight:800;}
+.kpi .s{font-size:.72em;color:var(--t3);margin-top:2px;}
+.g{color:var(--accent);}.b{color:var(--info);}.a{color:var(--warn);}
+
+.progress{height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:8px;}
+.pfill{height:100%;border-radius:2px;transition:width 1s ease;}
+.cg{background:var(--accent);}.cb{background:var(--info);}.ca{background:var(--warn);}.cp{background:var(--p);}
+.wt{font-size:.7em;color:var(--warn);background:var(--wd);padding:2px 8px;border-radius:6px;display:inline-block;margin-top:6px;}
+.tag{font-size:.7em;padding:3px 8px;border-radius:6px;}
+
+/* Empty */
+.emp{text-align:center;padding:60px 20px;color:var(--t3);}
+.emp .ic{font-size:3.5em;margin-bottom:12px;}
+.emp h2{color:var(--t2);margin-bottom:6px;font-size:1.15em;}
+
+/* Upload */
+.up{border:2px dashed var(--brd);border-radius:var(--r);padding:40px;text-align:center;cursor:pointer;transition:all .3s;margin-bottom:14px;}
+.up:hover,.up.drag{border-color:var(--accent);background:var(--ad);}
+.up .ic{font-size:2.5em;margin-bottom:6px;}
+.up .hint{font-size:.72em;color:var(--t3);margin-top:2px;}
+
+/* Processing */
+.proc{background:var(--bg2);border:1px solid var(--accent);border-radius:var(--r);padding:18px;margin:14px 0;}
+.ps{display:flex;align-items:center;gap:6px;padding:4px 0;font-size:.82em;color:var(--t2);}
+.ps.done{color:var(--accent);}
+.ps.cur{color:var(--warn);font-weight:600;}
+.spin{width:12px;height:12px;border:2px solid var(--brd);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Lecture split */
+.ls{display:grid;grid-template-columns:1fr 1fr;gap:14px;min-height:320px;}
+.pnl{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;}
+.ptabs{display:flex;border-bottom:1px solid var(--brd);}
+.pt{padding:9px 14px;font-size:.78em;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--ff);}
+.pt:hover{color:var(--text);}
+.pt.ac{color:var(--accent);border-bottom-color:var(--accent);font-weight:600;}
+.pct{flex:1;overflow-y:auto;padding:14px;font-size:.85em;line-height:1.75;max-height:340px;}
+.tl{padding:5px 8px;border-radius:5px;cursor:pointer;transition:all .12s;display:flex;gap:8px;}
+.tl:hover{background:var(--bg3);}
+.tl.ac{background:var(--ad);border-left:3px solid var(--accent);padding-left:5px;}
+.tt{font-size:.72em;color:var(--t3);min-width:58px;flex-shrink:0;font-variant-numeric:tabular-nums;}
+
+/* Highlighted terms */
+.hl{background:rgba(245,158,11,0.18);border-radius:3px;padding:1px 3px;cursor:pointer;border-bottom:1px dashed var(--warn);}
+.hl:hover{background:rgba(245,158,11,0.3);}
+.hl2{background:rgba(249,115,22,0.18);border-radius:3px;padding:1px 3px;cursor:pointer;border-bottom:1px dashed #F97316;}
+.hl3{background:rgba(96,165,250,0.18);border-radius:3px;padding:1px 3px;cursor:pointer;border-bottom:1px dashed var(--info);}
+
+/* Popup */
+.pop{display:none;position:fixed;z-index:200;background:var(--bg2);border:1px solid var(--accent);border-radius:var(--r);padding:16px;min-width:260px;max-width:320px;box-shadow:0 12px 40px rgba(0,0,0,0.5);}
+.pop.ac{display:block;}
+.pop h4{color:var(--accent);margin-bottom:6px;}
+.pop .def{font-size:.82em;color:var(--text);margin-bottom:4px;}
+.pop .zh{font-size:.82em;color:var(--t2);margin-bottom:4px;}
+.pop .an{font-size:.78em;color:var(--t3);font-style:italic;margin-bottom:8px;}
+.pop .btns{display:flex;gap:6px;margin-top:8px;}
+
+/* Review grid */
+.rg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px;}
+.rc{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);padding:22px;text-align:center;cursor:pointer;transition:all .2s;}
+.rc:hover{transform:translateY(-2px);}
+.rc .ic{font-size:1.8em;margin-bottom:6px;}
+.rc h4{font-size:.88em;margin-bottom:2px;}
+.rc p{font-size:.75em;color:var(--t3);}
+
+/* Search results */
+.sr-item{padding:12px 16px;border-bottom:1px solid var(--brd);cursor:pointer;transition:all .15s;}
+.sr-item:hover{background:var(--bg3);}
+.sr-item .tp{font-size:.68em;color:var(--t3);}
+.sr-item .tl{font-size:.82em;font-weight:600;}
+.sr-item .ex{font-size:.75em;color:var(--t2);margin-top:2px;}
+
+/* Modal */
+.mod{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center;}
+.mod.ac{display:flex;}
+.mod-inner{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);padding:24px;min-width:380px;max-width:480px;}
+.mod-inner h3{margin-bottom:14px;}
+.mod-inner label{display:block;font-size:.8em;color:var(--t2);margin-bottom:4px;margin-top:10px;}
+.mod-inner input{width:100%;padding:9px 12px;border-radius:var(--rs);border:1px solid var(--brd);background:var(--bg);color:var(--text);font-size:.88em;outline:none;font-family:var(--ff);}
+.mod-inner input:focus{border-color:var(--accent);}
+.mod-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+
+/* Timeline */
+.tmi{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--brd);}
+.tmi:last-child{border:none;}
+.tld{width:7px;height:7px;border-radius:50%;background:var(--accent);}
+.tld.urg{background:var(--danger);animation:pulse 2s infinite;}
+.tlv{margin-left:auto;font-weight:700;font-size:1.05em;}
+.tlv.urg{color:var(--danger);}
+
+/* Settings */
+.sr{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--brd);}
+.lec{display:flex;align-items:center;gap:10px;padding:14px;background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);margin-bottom:6px;cursor:pointer;}
+.lec:hover{border-color:var(--accent);}
+.lec .ln{font-size:1.3em;font-weight:800;color:var(--accent);min-width:35px;}
+.lec .st{font-size:.68em;padding:2px 8px;border-radius:6px;}
+.lec .st.done{background:var(--ad);color:var(--accent);}
+.lec .st.wait,.lec .st.proc{background:var(--wd);color:var(--warn);}
+.lec .st.err{background:rgba(239,68,68,0.15);color:var(--danger);}
+
+/* Graph */
+.gph{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);padding:30px;text-align:center;margin-top:14px;}
+.gn{padding:7px 14px;border-radius:18px;border:1px solid var(--brd);font-size:.8em;color:var(--t2);display:inline-block;margin:3px;}
+.gn:hover{border-color:var(--accent);color:var(--accent);cursor:pointer;}
+.gn.lg{font-size:.95em;font-weight:600;border-color:var(--accent);color:var(--accent);}
+
+/* Player bar */
+.plb{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+#waveform{flex:1;height:80px;}
+.plt{font-size:.8em;font-variant-numeric:tabular-nums;color:var(--t2);min-width:45px;text-align:center;}
+
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px;}
+
+@media(max-width:768px){
+  .sb{display:none;}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .ls{grid-template-columns:1fr;}
+  .rg{grid-template-columns:1fr;}
+  .tb{padding:8px;}
+  .ct{padding:14px;}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sb">
+    <div class="lg" onclick="goPage('dashboard')"><div class="d"></div>LectureVault</div>
+    <button class="si ac" onclick="goPage('dashboard')" data-pg="dashboard"><span class="ic">📊</span>总仪表盘</button>
+    <button class="si" onclick="goPage('courses')" data-pg="courses"><span class="ic">📚</span>课程目录<span class="sb-badge" id="courseBadge">0</span></button>
+    <div class="divider"></div>
+    <div class="cm" id="sidebarCourses"><div style="font-size:.72em;color:var(--t3);padding:6px 12px;">暂无课程</div></div>
+    <div class="divider"></div>
+    <button class="si" onclick="goPage('search')" data-pg="search"><span class="ic">🔍</span>全局搜索</button>
+    <button class="si" onclick="goPage('vocab')" data-pg="vocab"><span class="ic">📖</span>生词本<span class="sb-badge" id="vocabBadge">0</span></button>
+    <button class="si" onclick="goPage('chat')" data-pg="chat"><span class="ic">🤖</span>AI助手</button>
+    <button class="si" onclick="goPage('schedule')" data-pg="schedule"><span class="ic">📅</span>日程看板</button>
+    <button class="si" onclick="goPage('settings')" data-pg="settings"><span class="ic">⚙️</span>设置</button>
+  </aside>
+
+  <main class="main">
+    <div class="tb">
+      <span class="bc" id="bc">总仪表盘</span>
+      <div class="sbox">🔍 <input type="text" id="qs" placeholder="搜索..."> <kbd>⌘K</kbd></div>
+      <button class="thm" onclick="toggleTheme()">🌓</button>
+    </div>
+    <div class="ct" id="ct"></div>
+  </main>
+</div>
+
+<div class="pop" id="popup"></div>
+<div class="mod" id="modal"><div class="mod-inner" id="modalInner"></div></div>
+<div id="procArea" style="position:fixed;bottom:16px;right:16px;z-index:50;"></div>
+
+<script>
+// ======= BACKEND CONFIG =======
+const API = 'http://127.0.0.1:8766';
+let wavesurfer = null;
+
+// ======= DATA STORE =======
+const DB = {
+  _k:'lv_data',
+  d:null,
+  load(){try{this.d=JSON.parse(localStorage.getItem(this._k))}catch(e){}
+    if(!this.d||!this.d.v){this.d={v:2,courses:[],st:{theme:'dark',speed:1,backend:true},vocab:[]};this.save()}
+    return this.d;
+  },
+  save(){localStorage.setItem(this._k,JSON.stringify(this.d))},
+  refresh(){
+    document.getElementById('courseBadge').textContent=this.d.courses.length;
+    document.getElementById('vocabBadge').textContent=this.d.vocab.length;
+    const sc=document.getElementById('sidebarCourses');
+    if(this.d.courses.length===0){sc.innerHTML='<div style="font-size:.72em;color:var(--t3);padding:6px 12px;">暂无课程</div>';}
+    else{sc.innerHTML=this.d.courses.map(c=>`<div class="ci" onclick="goPage('course','${c.id}')"><span class="dot" style="background:${c.color}"></span>${c.name}</div>`).join('');}
+  },
+  course(id){return this.d.courses.find(c=>c.id===id);},
+  lecture(cid,lid){const c=this.course(cid);return c?c.lectures.find(l=>l.id===lid):null;},
+  addCourse(nm,cd,sm){
+    const cls=['#6DB58A','#60A5FA','#F59E0B','#C084FC','#FB7185','#38BDF8'];
+    const c={id:'c'+Date.now(),name:nm,code:cd,semester:sm,color:cls[this.d.courses.length%6],lectures:[],cts:Date.now()};
+    this.d.courses.push(c);this.save();this.refresh();return c;
+  },
+  deleteCourse(id){this.d.courses=this.d.courses.filter(c=>c.id!==id);this.save();this.refresh();},
+  addLecture(cid,title,audioFile,duration){
+    const c=this.course(cid);if(!c)return null;
+    const l={id:'l'+Date.now(),title,audioFileName:audioFile.name,audioSize:audioFile.size,duration:duration||0,transcript:null,concepts:[],assignments:[],examInfo:[],alerts:[],notes:[],status:'uploaded',cts:Date.now()};
+    c.lectures.unshift(l);this.save();this.refresh();return l;
+  },
+  updateLecture(cid,lid,data){
+    const c=this.course(cid);if(!c)return;
+    const l=c.lectures.find(x=>x.id===lid);if(!l)return;
+    Object.assign(l,data);this.save();
+  },
+  deleteLecture(cid,lid){
+    const c=this.course(cid);if(!c)return;
+    c.lectures=c.lectures.filter(l=>l.id!==lid);
+    // Clean up OPFS
+    const opfsDir=`${cid}/${lid}`;
+    navigator.storage?.getDirectory().then(root=>root.removeEntry(opfsDir,{recursive:true}).catch(()=>{}));
+    this.save();this.refresh();
+  },
+  addVocab(term,enDef,zhDef,zhAna,courseId){
+    if(this.d.vocab.find(v=>v.term===term))return;
+    this.d.vocab.push({term,enDef,zhDef,zhAna,courseId,added:Date.now(),mastered:false});
+    this.save();this.refresh();
+  },
+  searchAll(q){
+    const lq=q.toLowerCase();const r=[];
+    this.d.courses.forEach(c=>{
+      if(c.name.toLowerCase().includes(lq)||c.code.toLowerCase().includes(lq)) r.push({type:'📚 课程',title:c.name+' ('+c.code+')',cid:c.id});
+      c.lectures.forEach(l=>{
+        if(l.title.toLowerCase().includes(lq)) r.push({type:'📖 课时',title:l.title,sub:c.name,cid:c.id,lid:l.id});
+        if(l.transcript) l.transcript.forEach(s=>{if(s.text.toLowerCase().includes(lq)) r.push({type:'📝 文稿',title:s.text.substring(0,70)+'...',sub:`${c.name} · ${fmtTime(s.start)}`,cid:c.id,lid:l.id});});
+        (l.concepts||[]).forEach(k=>{if(k.concept.toLowerCase().includes(lq)) r.push({type:'🧠 知识点',title:k.concept,sub:`${c.name} · ${l.title}`,cid:c.id,lid:l.id});});
+      });
+    });
+    this.d.vocab.forEach(v=>{if(v.term.toLowerCase().includes(lq)||v.zhDef.toLowerCase().includes(lq)) r.push({type:'📖 生词',title:v.term+' → '+v.zhDef});});
+    return r.slice(0,20);
+  }
+};
+
+// ======= OPFS STORE =======
+async function opfsSave(cid,lid,file){
+  try{
+    const root=await navigator.storage.getDirectory();
+    const cDir=await root.getDirectoryHandle(cid,{create:true});
+    const lDir=await cDir.getDirectoryHandle(lid,{create:true});
+    const fh=await lDir.getFileHandle(file.name,{create:true});
+    const w=await fh.createWritable();
+    await w.write(file);
+    await w.close();
+    return true;
+  }catch(e){console.error('OPFS save error:',e);return false;}
+}
+async function opfsGetUrl(cid,lid,fname){
+  try{
+    const root=await navigator.storage.getDirectory();
+    const lDir=await root.getDirectoryHandle(cid+'/'+lid);
+    const fh=await lDir.getFileHandle(fname);
+    const file=await fh.getFile();
+    return URL.createObjectURL(file);
+  }catch(e){return null;}
+}
+
+// ======= HELPERS =======
+function fmtTime(s){if(!s&&s!==0)return'--:--';const m=Math.floor(s/60),sec=Math.floor(s%60);return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');}
+function fmtDate(ts){return new Date(ts).toLocaleDateString('zh-CN',{month:'short',day:'numeric'});}
+function fmtDateFull(ts){return new Date(ts).toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric'});}
+function daysUntil(ts){return Math.ceil((ts-Date.now())/86400000);}
+let _cc=null,_cl=null;
+
+// ======= THEME =======
+function toggleTheme(){document.body.classList.toggle('light');DB.d.st.theme=document.body.classList.contains('light')?'light':'dark';DB.save();}
+function applyTheme(){if(DB.d.st.theme==='light')document.body.classList.add('light');}
+
+// ======= NAVIGATION =======
+function goPage(pg,param){
+  document.querySelectorAll('.si[data-pg]').forEach(s=>s.classList.remove('ac'));
+  const sel=document.querySelector(`.si[data-pg="${pg}"]`);
+  if(sel)sel.classList.add('ac');
+  _cc=null;_cl=null;document.getElementById('popup').classList.remove('ac');
+
+  switch(pg){
+    case'dashboard':rDashboard();break;
+    case'courses':rCourses();break;
+    case'course':_cc=DB.course(param);rCourseDetail();break;
+    case'lecture':{
+      const[ci,li]=param.split('/');_cc=DB.course(ci);_cl=_cc?DB.lecture(ci,li):null;
+      rLectureDetail();break;
+    }
+    case'search':rSearch();break;
+    case'vocab':rVocab();break;
+    case'chat':rChat();break;
+    case'schedule':rSchedule();break;
+    case'settings':rSettings();break;
+  }
+  document.getElementById('ct').scrollTop=0;
+  document.getElementById('popup').classList.remove('ac');
+  // Reset wavesurfer
+  if(wavesurfer){wavesurfer.destroy();wavesurfer=null;}
+}
+
+function modal(title,body,onOk,okText='确认'){
+  document.getElementById('modalInner').innerHTML=`<h3>${title}</h3>${body}<div class="mod-actions"><button class="btn btn-o" onclick="document.getElementById('modal').classList.remove('ac')">取消</button>${onOk?`<button class="btn btn-p" onclick="(()=>{document.getElementById('modal').classList.remove('ac');(${onOk.toString()})()})()">${okText}</button>`:''}</div>`;
+  document.getElementById('modal').classList.add('ac');
+}
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('ac');});
+
+// ======= DASHBOARD =======
+function rDashboard(){
+  const cs=DB.d.courses;let tl=0,rc=0;
+  cs.forEach(c=>{tl+=c.lectures.length;c.lectures.forEach(l=>{if(l.status==='ready')rc++;});});
+  const pa=[];cs.forEach(c=>c.lectures.forEach(l=>(l.assignments||[]).forEach(a=>{if(!a.done)pa.push({...a,cn:c.name,cid:c.id,lid:l.id});})));
+
+  if(cs.length===0){
+    document.getElementById('ct').innerHTML=`<div class="emp"><div class="ic">🎓</div><h2>欢迎来到 LectureVault</h2><p>上传课堂录音，AI自动转录+提取知识点</p><div style="margin-top:16px;display:flex;gap:10px;justify-content:center;"><button class="btn btn-p" onclick="rNewCourseModal()">➕ 创建课程</button></div><p style="font-size:.7em;color:var(--t3);margin-top:12px;">需要先启动后端服务: python3 server.py</p></div>`;
+    return;
+  }
+
+  let h=`<h1>📊 学习概览</h1><p class="sub">${cs.length}门课程 · ${tl}课时</p>`;
+  h+=`<div class="kpi-grid">
+    <div class="kpi"><div class="l">已完成课时</div><div class="v g">${rc}</div><div class="s">共${tl}课时</div></div>
+    <div class="kpi"><div class="l">待复习</div><div class="v a">${tl-rc}</div><div class="s">${pa.length}个待交作业</div></div>
+    <div class="kpi"><div class="l">生词积累</div><div class="v b">${DB.d.vocab.length}</div><div class="s">跨${cs.length}门课程</div></div>
+    <div class="kpi"><div class="l">掌握率</div><div class="v g">${tl?Math.round(rc/tl*100):0}%</div><div class="s">已完成/总课时</div></div></div>`;
+  h+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><strong>📈 课程进度</strong><button class="btn btn-sm btn-o" onclick="rNewCourseModal()">➕ 新建</button></div>`;
+  cs.forEach(c=>{
+    const done=c.lectures.filter(l=>l.status==='ready').length;
+    const pct=c.lectures.length?Math.round(done/c.lectures.length*100):0;
+    const ci=cs.indexOf(c)%4;const cls=['cg','cb','ca','cp'][ci];
+    h+=`<div class="card" onclick="goPage('course','${c.id}')"><h3>${c.name} <span style="font-size:.75em;color:var(--t3);">${c.code}</span></h3><div style="font-size:.75em;color:var(--t2);margin:4px 0;">📖 ${c.lectures.length}课时 · ✅ ${done}完成</div><div class="progress"><div class="pfill ${cls}" style="width:${pct}%"></div></div></div>`;
+  });
+
+  // Deadlines
+  const dd=[];
+  cs.forEach(c=>c.lectures.forEach(l=>{(l.examInfo||[]).forEach(e=>{if(!e.passed)dd.push({...e,type:'考试',cn:c.name,cid:c.id,lid:l.id});});}));
+  pa.forEach(a=>dd.push({...a,type:'作业'}));
+  dd.sort((a,b)=>daysUntil(a.due_date||a.dueDate||Date.now())-daysUntil(b.due_date||b.dueDate||Date.now()));
+  if(dd.length){
+    h+=`<div class="card" style="cursor:default;margin-top:14px;"><strong style="margin-bottom:10px;display:block;">⏰ 倒计时</strong>`;
+    dd.slice(0,5).forEach(d=>{
+      const days=daysUntil(d.due_date||d.dueDate||Date.now());const urg=days<=7;
+      h+=`<div class="tmi"><div class="tld${urg?' urg':''}"></div><div><strong>${d.type}: ${d.description||d.cn}</strong><div style="font-size:.75em;color:var(--t2);">${d.cn||''} · ${(d.due_date||d.dueDate)?fmtDateFull(d.due_date||d.dueDate):''}</div></div><div class="tlv${urg?' urg':''}">${days}天</div></div>`;
+    });
+    h+=`</div>`;
+  }
+  document.getElementById('ct').innerHTML=h;
+}
+
+function rNewCourseModal(){
+  modal('新建课程',`<label>课程名称</label><input id="fNm" placeholder="如：微观经济分析"><label>课程代码</label><input id="fCd" placeholder="如：ECON2003"><label>学期</label><input id="fSm" value="2026 S2">`,
+    ()=>{const n=document.getElementById('fNm').value.trim(),c=document.getElementById('fCd').value.trim(),s=document.getElementById('fSm').value.trim()||'2026 S2';if(!n)return alert('请输入名称');const co=DB.addCourse(n,c,s);goPage('course',co.id);}
+  );
+}
+
+// ======= COURSES =======
+function rCourses(){
+  const cs=DB.d.courses;
+  if(cs.length===0){document.getElementById('ct').innerHTML=`<div class="emp"><div class="ic">📚</div><h2>还没有课程</h2><p>创建第一门课程开始</p><button class="btn btn-p" style="margin-top:12px;" onclick="rNewCourseModal()">➕ 新建</button></div>`;return;}
+  let h=`<h1>📚 课程目录</h1><p class="sub">${cs.length}门</p><button class="btn btn-p" style="margin-bottom:14px;" onclick="rNewCourseModal()">➕ 新建课程</button>`;
+  cs.forEach(c=>{
+    const done=c.lectures.filter(l=>l.status==='ready').length;
+    h+=`<div class="card" onclick="goPage('course','${c.id}')"><div style="display:flex;justify-content:space-between;"><div><h3>${c.name} <span style="font-size:.75em;color:var(--t3);">${c.code}</span></h3><div style="font-size:.75em;color:var(--t2);">📖 ${c.lectures.length}课时</div></div><button class="btn-sm btn-d" onclick="event.stopPropagation();if(confirm('删除课程${c.name}？')){DB.deleteCourse('${c.id}');rCourses();}">删除</button></div></div>`;
+  });
+  document.getElementById('ct').innerHTML=h;
+}
+
+// ======= COURSE DETAIL =======
+function rCourseDetail(){
+  if(!_cc){goPage('courses');return;}
+  const c=_cc;
+  let h=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><button class="btn btn-o btn-sm" onclick="goPage('courses')">← 返回</button><h1>${c.name}</h1><p class="sub" style="margin:0 0 0 auto;font-size:.8em;">${c.code} · ${c.lectures.length}课时</p><button class="btn btn-d btn-sm" onclick="if(confirm('删除课程？')){DB.deleteCourse('${c.id}');goPage('courses');}">🗑</button></div>`;
+  h+=`<div class="up" id="upZone" onclick="document.getElementById('afInput').click()"><div class="ic">🎙️</div><p>上传课堂录音</p><p class="hint">.mp3 .m4a .wav .ogg .flac</p></div><input type="file" id="afInput" accept="audio/*" style="display:none" onchange="handleUpload(this)">`;
+  h+=`<div id="procSpot"></div>`;
+
+  if(c.lectures.length===0){
+    h+=`<div class="emp" style="padding:30px;"><p style="font-size:2em;">📖</p><p>还没有课时，上传录音开始</p></div>`;
+  }else{
+    h+=`<div style="font-weight:600;margin:14px 0 6px;">📖 课时列表</div>`;
+    c.lectures.forEach((l,i)=>{
+      let st,lb,clk=`onclick="goPage('lecture','${c.id}/${l.id}')"`;
+      if(l.status==='ready'){
+        st='done';lb='✅ 已完成';
+      }else if(l.status==='processing'){
+        st='proc';lb='<span class="spin"></span> 处理中...';
+      }else if(l.status==='error'){
+        st='err';lb='❌ 失败';
+        clk=''; // No click - show retry instead
+      }else{
+        st='wait';lb='⬜ 待处理';
+      }
+      h+=`<div class="lec" ${clk}><div class="ln">${c.lectures.length-i}</div><div style="flex:1;"><div style="font-weight:600;">${l.title}</div><div style="font-size:.75em;color:var(--t2);">${fmtDateFull(l.cts)} · ${l.duration?Math.round(l.duration/60)+'分钟':''} · ${l.audioFileName||''}</div>${l.status==='error'?'<div style="font-size:.72em;color:var(--danger);margin-top:2px;">'+((l.errorMsg||'未知错误').substring(0,80))+'</div><button class="btn btn-o btn-sm" style="margin-top:4px;" onclick="event.stopPropagation();retryLecture(\''+c.id+'\',\''+l.id+'\')">🔄 重试</button><button class="btn btn-sm btn-d" style="margin-left:4px;margin-top:4px;" onclick="event.stopPropagation();delLecture(\''+c.id+'\',\''+l.id+'\')">🗑</button>':''}</div><span class="st ${st}">${lb}</span></div>`;
+    });
+  }
+  document.getElementById('ct').innerHTML=h;
+
+  // Drag and drop
+  const z=document.getElementById('upZone');
+  if(z){
+    z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('drag');});
+    z.addEventListener('dragleave',()=>z.classList.remove('drag'));
+    z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('drag');const f=e.dataTransfer.files[0];if(f)processUpload(f);});
+  }
+}
+
+// ======= UPLOAD & PROCESSING =======
+async function handleUpload(input){
+  const f=input.files[0];if(!f)return;
+  await processUpload(f);
+}
+
+async function processUpload(file){
+  if(!_cc){alert('请先选择课程');return;}
+  if(!file.type.startsWith('audio/')&&!file.name.match(/\.(mp3|m4a|wav|ogg|flac|webm)$/i)){alert('请选择音频文件');return;}
+
+  // Get duration
+  let dur=0;
+  try{
+    const a=new Audio(URL.createObjectURL(file));
+    dur=await new Promise(r=>{a.addEventListener('loadedmetadata',()=>r(a.duration));a.addEventListener('error',()=>r(0));});
+  }catch(e){}
+
+  const title=`第${_cc.lectures.length+1}课：${file.name.replace(/\.[^.]+$/,'')}`;
+  const l=DB.addLecture(_cc.id,title,file,dur);
+
+  // Save to OPFS (non-blocking: don't delete lecture on failure)
+  const saved=await opfsSave(_cc.id,l.id,file);
+  if(!saved){console.warn('OPFS save failed, continuing with in-memory only');}
+  
+  // Always show processing
+  DB.updateLecture(_cc.id,l.id,{status:'processing'});
+  const ps=document.getElementById('procSpot');
+  if(ps)ps.innerHTML='<div class="proc"><strong>🤖 AI处理中 — '+file.name+'</strong><div id="procSteps"><div class="ps cur"><span class="spin"></span> 上传音频...</div><div class="ps">⏳ 语音识别 (Whisper large-v3 GPU)...</div><div class="ps">⏳ AI提取知识点 (DeepSeek)...</div><div class="ps">⏳ 生成复习资料...</div></div></div>';
+
+  try{
+    await sleep(800);
+    updateProc(0,'done','✅ 音频保存完成');
+    updateProc(1,'cur','⏳ 转录中...（大文件需几分钟）');
+    
+    const fd=new FormData();
+    fd.append('file',file);
+    // Step 1: Start transcription (returns job_id for progress tracking)
+    const tResp=await fetch(API+'/transcribe?course='+encodeURIComponent(_cc?.name||'')+'&code='+encodeURIComponent(_cc?.code||''),{method:'POST',body:fd});
+    if(!tResp.ok){const et=await tResp.text();throw new Error('转录启动失败('+tResp.status+'): '+et.substring(0,120));}
+    const tStart=await tResp.json();
+    if(!tStart.job_id)throw new Error('后端未返回任务ID');
+    const estSec=tStart.estimated_seconds||60;
+    
+    updateProc(1,'cur','⏳ 转录中... (预计 '+(estSec>60?Math.round(estSec/60)+'分钟':Math.round(estSec)+'秒')+')');
+    // Poll progress — up to 30 minutes for long recordings
+    let tData=null,consecutive404=0;
+    for(let i=0;i<2250;i++){ // 2250 * 0.8s = 30 minutes
+      await sleep(800);
+      try{
+        const pResp=await fetch(API+'/progress/'+tStart.job_id);
+        if(!pResp.ok){
+          consecutive404++;
+          if(consecutive404>15) throw new Error('后端无响应（可能内存不足重启了）。请重试。');
+          continue;
+        }
+        consecutive404=0;
+        const pData=await pResp.json();
+        const pct=pData.progress||0;
+        const remain=estSec*(1-pct/100);
+        updateProc(1,'cur','⏳ 转录中... '+pct+'% ('+(remain>60?Math.round(remain/60)+'分钟':Math.round(remain)+'秒')+' 剩余)');
+        if(pData.status==='done'&&pData.result){
+          tData=pData.result;break;
+        }
+        if(pData.status==='error'){
+          throw new Error('转录失败: '+(pData.error||'未知错误'));
+        }
+      }catch(e){if(e.message.startsWith('转录失败')||e.message.startsWith('后端无响应'))throw e;}
+    }
+    if(!tData)throw new Error('转录超时。2小时录音预计6分钟，如有问题请查看后端日志。');
+    
+    updateProc(1,'done','✅ 转录完成 ('+(tData.segments||[]).length+'段, '+Math.round(tData.duration||0)+'秒)');
+    updateProc(2,'cur','⏳ AI分析中...');
+
+    // Step 2: Analyze (try LLM, fallback to local)
+    let concepts=[],assignments=[],examInfo=[],alerts=[];
+    try{
+      const aResp=await fetch(API+'/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(tData.segments)});
+      if(aResp.ok){
+        const aData=await aResp.json();
+        concepts=aData.concepts||[];assignments=aData.assignments||[];examInfo=aData.exam_info||[];alerts=aData.alerts||[];
+      }else{
+        throw new Error('LLM unavailable');
+      }
+    }catch(e){
+      // Fallback: basic extraction
+      concepts=basicExtract(tData.segments);
+      assignments=[];examInfo=[];alerts=[];
+    }
+    updateProc(2,'done',`✅ 提取完成 (${concepts.length}个知识点)`);
+    updateProc(3,'cur','⏳ 翻译文稿中...');
+
+    // Step 3: Translate transcript to Chinese
+    let translations={};
+    try{
+      const trResp=await fetch(API+'/translate-transcript',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({segments:tData.segments})});
+      if(trResp.ok){
+        const trData=await trResp.json();
+        translations=trData.segments||[];
+      }
+    }catch(e){console.warn('Translation failed:',e);}
+    updateProc(3,'done',`✅ 翻译完成 (${translations.length||0}段)`);
+
+    // Save
+    DB.updateLecture(_cc.id,l.id,{status:'ready',transcript:tData.segments,duration:tData.duration,concepts,assignments,examInfo,alerts,notes:[],translations});
+    DB.refresh();
+
+    if(ps)ps.innerHTML=`<div class="card" style="border-color:var(--accent);"><strong style="color:var(--accent);">✅ 处理完成！</strong><p style="font-size:.82em;color:var(--t2);">${tData.segments.length}段文稿 · ${concepts.length}个知识点</p><button class="btn btn-p btn-sm" style="margin-top:6px;" onclick="goPage('lecture','${_cc.id}/${l.id}')">📖 查看 →</button></div>`;
+
+  }catch(e){
+    console.error(e);
+    DB.updateLecture(_cc.id,l.id,{status:'error',errorMsg:e.message||String(e)});
+    // Show error inline without destroying the page
+    if(ps){
+      ps.innerHTML='<div class="card" style="border-color:var(--danger);margin-bottom:14px;"><strong style="color:var(--danger);">❌ 处理失败</strong><p style="font-size:.82em;color:var(--t2);margin:6px 0;">'+e.message+'</p><p style="font-size:.75em;color:var(--t3);">后端运行中？ curl http://127.0.0.1:8766/health</p><button class="btn btn-o btn-sm" style="margin-top:6px;" onclick="rCourseDetail()">🔄 刷新列表</button></div>';
+      return;
+    }
+  }
+  rCourseDetail();
+}
+
+
+function delLecture(cid,lid){
+  if(confirm("删除这个课时？音频和文稿都会被清除。")){
+    DB.deleteLecture(cid,lid);
+    rCourseDetail();
+  }
+}
+
+async function retryLecture(cid,lid){
+  _cc=DB.course(cid);
+  if(!_cc)return;
+  const l=_cc.lectures.find(x=>x.id===lid);
+  if(!l)return;
+  // Need the file - try OPFS first, then in-memory
+  let file=null;
+  try{
+    const root=await navigator.storage.getDirectory();
+    const lDir=await root.getDirectoryHandle(cid+'/'+lid);
+    const fh=await lDir.getFileHandle(l.audioFileName);
+    file=await fh.getFile();
+  }catch(e){}
+  
+  if(!file){alert('音频文件已丢失（可能在清除浏览器数据时被删除）。请重新上传。');return;}
+  
+  // Reset status and re-process
+  DB.updateLecture(cid,lid,{status:'processing',errorMsg:''});
+  rCourseDetail(); // Show processing state
+  
+  // Wait for DOM update
+  await sleep(100);
+  await processUpload(file);
+}
+
+
+async function translateNow(cid,lid){
+  _cc=DB.course(cid);if(!_cc)return;
+  const l=_cc.lectures.find(x=>x.id===lid);if(!l||!l.transcript)return;
+  
+  // Show progress
+  const h=document.createElement('div');
+  h.className='proc';h.style.margin='12px 0';
+  h.innerHTML='<div class="ps cur"><span class="spin"></span> ⏳ 正在翻译文稿...</div>';
+  const ct=document.getElementById('ct');
+  if(ct)ct.insertBefore(h,ct.firstChild.nextSibling);
+  
+  try{
+    const r=await fetch(API+'/translate-transcript',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({segments:l.transcript})});
+    if(!r.ok)throw new Error('翻译失败: '+r.status);
+    const d=await r.json();
+    DB.updateLecture(cid,lid,{translations:d.segments||[]});
+    DB.refresh();
+    goPage('lecture',cid+'/'+lid);
+  }catch(e){
+    h.innerHTML='<div class="card" style="border-color:var(--danger);"><strong style="color:var(--danger);">❌ 翻译失败</strong><p style="font-size:.82em;">'+e.message+'</p></div>';
+  }
+}
+
+function updateProc(idx,cls,text){
+  const st=document.getElementById('procSteps');
+  if(!st)return;
+  const ps=st.querySelectorAll('.ps');
+  if(ps[idx]){ps[idx].className='ps '+cls;if(text)ps[idx].innerHTML=text;}
+}
+
+function basicExtract(segments){
+  // Simple keyword-based extraction when LLM unavailable
+  const text=segments.map(s=>s.text).join(' ').toLowerCase();
+  const keywords=['perfect competition','monopoly','elasticity','utility','marginal','profit','demand','supply','equilibrium','cost','price','consumer','producer','market','competition','oligopoly','game theory','externality','welfare','shutdown'];
+  const found=keywords.filter(k=>text.includes(k)).slice(0,8);
+  return found.map(k=>({concept:k.replace(/\b\w/g,c=>c.toUpperCase()),definition:'(需要LLM生成详细释义 — 请设置DEEPSEEK_API_KEY)',category:'概念',timestamp:0}));
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// ======= LECTURE DETAIL =======
+function rLectureDetail(){
+  if(!_cc||!_cl){goPage('courses');return;}
+  const c=_cc,l=_cl;
+  let h=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;"><button class="btn btn-o btn-sm" onclick="goPage('course','${c.id}')">← 返回</button><h1 style="font-size:1.2em;">${l.title}</h1><span style="font-size:.78em;color:var(--t2);">${fmtDateFull(l.cts)} · ${l.duration?Math.round(l.duration/60)+'分钟':''}</span>${l.status==='ready'&&l.transcript&&!(l.translations||[]).length?`<button class="btn btn-sm btn-o" style="margin-left:auto;color:var(--accent);" onclick="translateNow('${c.id}','${l.id}')">🌐 翻译文稿</button>`:''}<button class="btn btn-d btn-sm" style="margin-left:auto;" onclick="if(confirm('删除本课时？')){DB.deleteLecture('${c.id}','${l.id}');goPage('course','${c.id}');}">🗑</button></div>`;
+
+  if(l.status==='processing'){h+=`<div class="proc"><div class="ps cur"><span class="spin"></span> <strong>AI正在处理中...</strong></div><p style="font-size:.82em;color:var(--t2);margin-top:4px;">语音识别+知识点提取大约需要1-5分钟（取决于音频长度）</p><p style="font-size:.75em;color:var(--t3);">如果页面被刷新，处理会中断。返回课程页点击"重试"即可。</p></div>`;}
+  else if(l.status==='ready'&&l.transcript){
+    // Player with wavesurfer
+    h+=`<div class="plb"><button class="btn btn-p btn-sm" id="playBtn" onclick="togglePlay()">▶</button><span class="plt" id="timeDisplay">00:00</span><div id="waveform" style="flex:1;height:64px;"></div><span class="plt">${fmtTime(l.duration)}</span><select id="spd" onchange="changeSpeed()" style="background:var(--bg);border:1px solid var(--brd);color:var(--text);padding:3px 6px;border-radius:4px;font-size:.75em;"><option>0.75x</option><option selected>1.0x</option><option>1.25x</option><option>1.5x</option><option>2.0x</option></select><audio id="fallbackAudio" style="display:none;" preload="metadata"></audio></div>`;
+
+    // Split view
+    h+=`<div class="ls"><div class="pnl"><div class="ptabs">${['📝 文稿','🧠 知识点','📋 作业','📅 考试','⚠️'].map((t,i)=>`<button class="pt${i===0?' ac':''}" onclick="switchLeftTab(${i})">${t}</button>`).join('')}</div><div class="pct" id="lp">`;
+    l.transcript.forEach((s,i)=>{
+      const tl=(l.translations||[]).find(t=>t.start===s.start&&t.end===s.end);
+      h+=`<div class="tl" data-t="${s.start}" onclick="jumpTo(${s.start})"><span class="tt">${fmtTime(s.start)}</span><div><span>${hlText(s.text,l)}</span>${tl&&tl.translation?`<div style="color:var(--accent);font-size:.85em;margin-top:2px;padding-left:2px;">🇨🇳 ${escHtml(tl.translation)}</div>`:''}</div></div>`;
+    });
+    h+=`</div></div>`;
+
+    // AI Notes
+    h+=`<div class="pnl"><div class="ptabs"><button class="pt ac">🤖 AI复习</button><button class="pt">✏️ 笔记</button></div><div class="pct">`;
+    h+=`<div style="margin-bottom:14px;"><h4 style="color:var(--accent);">📖 难懂知识点解析</h4>`;
+    (l.concepts||[]).slice(0,3).forEach(k=>h+=`<div style="background:var(--ad);padding:8px 10px;border-radius:8px;margin-bottom:6px;font-size:.8em;"><strong>${k.concept}</strong><p style="margin-top:2px;color:var(--text);">${k.definition||''}</p>${k.zh_translation?`<p style="margin-top:2px;color:var(--accent);">🇨🇳 ${k.zh_translation}</p>`:''}${k.zh_analogy?`<p style="margin-top:2px;color:var(--t3);font-style:italic;">💡 ${k.zh_analogy}</p>`:''}</div>`);
+    h+=`</div>`;
+    h+=`<div style="margin-bottom:14px;"><h4 style="color:var(--info);">📚 术语</h4><div style="display:flex;flex-wrap:wrap;gap:4px;">`;
+    (l.concepts||[]).forEach(k=>h+=`<span class="tag" style="background:var(--id);color:var(--info);cursor:pointer;font-size:.75em;" onclick="event.stopPropagation();clickTerm(event,this.textContent)">${k.concept}</span>`);
+    h+=`</div></div>`;
+    h+=`<div><h4 style="color:var(--warn);">🗺 大纲</h4><div style="font-size:.8em;line-height:1.7;padding-left:6px;">`;
+    (l.concepts||[]).forEach((k,i)=>h+=`<div>${i===0?'📐 ':'├─ '}${k.concept}${k.category==='核心'?' ⭐':''}</div>`);
+    h+=`</div></div></div></div></div>`;
+
+    // Review cards
+    h+=`<div style="margin-top:14px;"><strong>🤖 AI复习资料</strong><div class="rg"><div class="rc"><div class="ic">📖</div><h4>通俗化解析</h4><p>${(l.concepts||[]).length}个概念</p></div><div class="rc"><div class="ic">📚</div><h4>术语释义</h4><p>${(l.concepts||[]).length}个术语</p></div><div class="rc"><div class="ic">🗺</div><h4>逻辑大纲</h4><p>层级结构</p></div></div></div>`;
+
+    // Knowledge graph
+    h+=`<div class="gph"><p style="font-size:1.1em;">📊 知识图谱</p><p style="font-size:.8em;color:var(--t3);">AI自动梳理知识点关联</p><div style="margin-top:12px;">${(l.concepts||[]).map((k,i)=>`<span class="gn${k.category==='核心'?' lg':''}" onclick="goPage('search')">${k.concept}</span>${i<l.concepts.length-1?' → ':''}`).join('')}</div></div>`;
+
+    // Init wavesurfer after render
+    setTimeout(initWaveSurfer,100);
+  }else if(l.status==='uploaded'){
+    h+=`<div class="emp"><div class="ic">⏳</div><h2>等待处理</h2><p>音频已上传，尚未开始AI分析</p><button class="btn btn-o btn-sm" style="margin-top:8px;" onclick="goPage('course','${c.id}')">返回课程页</button></div>`;
+  }else if(l.status==='error'){
+    h+=`<div style="max-width:500px;margin:30px auto;">
+      <div class="card" style="border-color:var(--danger);cursor:default;text-align:center;">
+        <div style="font-size:3em;margin-bottom:8px;">❌</div>
+        <h2 style="color:var(--danger);">处理失败</h2>
+        <p style="color:var(--t2);font-size:.85em;margin:8px 0;">${(l.errorMsg||'转录或AI分析过程中出错').substring(0,150)}</p>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;">
+          <button class="btn btn-p btn-sm" onclick="retryLecture('${c.id}','${l.id}')">🔄 重新处理</button>
+          <button class="btn btn-o btn-sm" onclick="goPage('course','${c.id}')">← 返回课程</button>
+        </div>
+      </div></div>`;
+  }else{
+    h+=`<div class="emp"><div class="ic">📭</div><h2>未知状态</h2><p>${l.status}</p></div>`;
+  }
+  document.getElementById('ct').innerHTML=h;
+}
+
+function escAttr(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hlText(text,lecture){
+  let t=text;
+  (lecture.concepts||[]).forEach(k=>{
+    const re=new RegExp(`\\b${k.concept.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'gi');
+    t=t.replace(re,m=>`<span class="hl" data-term="${escAttr(k.concept)}" onclick="event.stopPropagation();clickTerm(event,this.dataset.term)">${m}</span>`);
+  });
+  t=t.replace(/(assignment|homework|due\s+date|exam|midterm|final|office\s+hours|quiz)/gi,m=>`<span class="hl2">${m}</span>`);
+  return t;
+}
+
+// ======= WAVESURFER =======
+async function initWaveSurfer(){
+  const waveformDiv=document.getElementById('waveform');
+  if(!waveformDiv||!_cl||!_cl.audioFileName){
+    // No waveform needed - use plain audio
+    const a=document.querySelector('#fallbackAudio');
+    if(a){a.style.display='';setupFallbackAudio(a);}
+    return;
+  }
+  const url=await opfsGetUrl(_cc.id,_cl.id,_cl.audioFileName);
+  if(!url){
+    waveformDiv.innerHTML='<p style="color:var(--t3);text-align:center;padding:20px;">音频文件不可用（可能已被清除）</p>';
+    return;
+  }
+
+  if(wavesurfer){wavesurfer.destroy();wavesurfer=null;}
+  
+  try{
+    const WaveSurfer=(await import('https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.esm.js')).default;
+    wavesurfer=WaveSurfer.create({
+      container:'#waveform',url,height:64,waveColor:'var(--accent)',progressColor:'var(--warn)',
+      cursorColor:'var(--text)',barWidth:2,barGap:1,barRadius:2,
+    });
+    wavesurfer.on('timeupdate',t=>{
+      const td=document.getElementById('timeDisplay');if(td)td.textContent=fmtTime(t);
+      document.querySelectorAll('.tl').forEach(line=>{const lt=parseFloat(line.dataset.t);line.classList.toggle('ac',lt<=t&&(!line.nextElementSibling||parseFloat(line.nextElementSibling.dataset.t)>t||!line.nextElementSibling.dataset.t));});
+    });
+    wavesurfer.on('ready',()=>{const td=document.getElementById('timeDisplay');if(td)td.textContent='00:00';});
+  }catch(e){console.warn('Wavesurfer failed, using fallback:',e);wavesurfer=null;}
+  
+  // Always set up fallback audio element
+  const a=document.querySelector('#fallbackAudio');
+  if(a){a.src=url;a.style.display=wavesurfer?'none':'';if(!wavesurfer)setupFallbackAudio(a);}
+}
+
+function setupFallbackAudio(a){
+  a.addEventListener('timeupdate',()=>{
+    const td=document.getElementById('timeDisplay');if(td)td.textContent=fmtTime(a.currentTime);
+  });
+  a.addEventListener('loadedmetadata',()=>{
+    const td=document.getElementById('timeDisplay');if(td)td.textContent='00:00';
+  });
+}
+
+function togglePlay(){
+  if(wavesurfer){wavesurfer.playPause();return;}
+  const a=document.querySelector('#fallbackAudio');
+  if(!a)return;
+  if(a.paused){a.play();document.getElementById('playBtn').textContent='⏸';}
+  else{a.pause();document.getElementById('playBtn').textContent='▶';}
+}
+function jumpTo(t){
+  if(wavesurfer){wavesurfer.setTime(t);wavesurfer.play();return;}
+  const a=document.querySelector('#fallbackAudio');
+  if(a){a.currentTime=t;a.play();document.getElementById('playBtn').textContent='⏸';}
+}
+function changeSpeed(){
+  const s=parseFloat(document.getElementById('spd').value);
+  if(wavesurfer)wavesurfer.setPlaybackRate(s);
+  const a=document.querySelector('#fallbackAudio');if(a)a.playbackRate=s;
+}
+
+// ======= TERM POPUP =======
+async function clickTerm(event,term){
+  const pop=document.getElementById('popup');
+  // Try backend
+  let enDef='',zhDef='',zhAna='';
+  try{
+    const r=await fetch(API+'/translate-term',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({term,context:_cc?`${_cc.name} lecture`:''})});
+    if(r.ok){const d=await r.json();enDef=d.en_definition||'';zhDef=d.zh_translation||'';zhAna=d.zh_analogy||'';}
+  }catch(e){}
+
+  if(!enDef){
+    // Fallback: try to find in lecture concepts (including zh_translation/zh_analogy)
+    const concept=(_cl?.concepts||[]).find(k=>k.concept.toLowerCase()===term.toLowerCase());
+    if(concept){enDef=concept.definition||'';zhDef=concept.zh_translation||'';zhAna=concept.zh_analogy||'';}
+  }
+
+  // Store data on popup element for button handlers (avoids inline onclick escaping)
+  pop._vocabData={term,enDef,zhDef,zhAna,courseId:_cc?.id||''};
+
+  pop.innerHTML=
+    `<h4>📖 ${escHtml(term)}</h4>`+
+    `<div class="def">${escHtml(enDef||'暂无释义')}</div>`+
+    `<div class="zh">🇨🇳 ${escHtml(zhDef||'（暂无中文翻译）')}</div>`+
+    (zhAna?`<div class="an">💡 ${escHtml(zhAna)}</div>`:'')+
+    `<div class="btns">`+
+      `<button class="btn btn-p btn-sm" id="popAddVocab">📖 加入生词本</button>`+
+      `<button class="btn btn-o btn-sm" id="popClose">关闭</button>`+
+    `</div>`;
+
+  // Attach DOM event handlers (no inline onclick with broken escaping)
+  const addBtn=document.getElementById('popAddVocab');
+  if(addBtn)addBtn.onclick=()=>{
+    const d=pop._vocabData;
+    if(d)DB.addVocab(d.term,d.enDef,d.zhDef,d.zhAna,d.courseId);
+    DB.refresh();pop.classList.remove('ac');
+  };
+  const closeBtn=document.getElementById('popClose');
+  if(closeBtn)closeBtn.onclick=()=>pop.classList.remove('ac');
+
+  pop.style.left=(event.clientX+10)+'px';pop.style.top=(event.clientY-10)+'px';
+  pop.classList.add('ac');
+  setTimeout(()=>{document.addEventListener('click',function cp(e){if(!pop.contains(e.target)&&!e.target.classList.contains('hl')){pop.classList.remove('ac');document.removeEventListener('click',cp);}});},100);
+}
+
+// ======= LEFT PANEL TAB SWITCHING =======
+function switchLeftTab(idx){
+  const lp=document.getElementById('lp');
+  if(!lp||!_cl)return;
+
+  // Update tab styles
+  const tabs=lp.parentElement.querySelectorAll('.ptabs .pt');
+  tabs.forEach((t,i)=>t.classList.toggle('ac',i===idx));
+
+  const l=_cl;
+
+  switch(idx){
+    case 0: // 📝 原文 — bilingual transcript
+      lp.innerHTML=l.transcript.map((s,i)=>{
+        const tl=(l.translations||[]).find(t=>t.start===s.start&&t.end===s.end);
+        return `<div class="tl" data-t="${s.start}" onclick="jumpTo(${s.start})"><span class="tt">${fmtTime(s.start)}</span><div><span>${hlText(s.text,l)}</span>${tl&&tl.translation?`<div style="color:var(--accent);font-size:.85em;margin-top:2px;padding-left:2px;">🇨🇳 ${escHtml(tl.translation)}</div>`:''}</div></div>`;
+      }).join('');
+      break;
+    case 1: // 🧠 知识点 — concepts with bilingual
+      lp.innerHTML=(l.concepts||[]).length
+        ? (l.concepts||[]).map(k=>
+            `<div style="padding:10px 8px;border-bottom:1px solid var(--brd);margin-bottom:4px;font-size:.82em;">
+              <strong style="color:var(--accent);">🧠 ${k.concept}</strong>
+              ${k.category?`<span class="tag" style="font-size:.68em;margin-left:6px;">${k.category}</span>`:''}
+              <div style="color:var(--text);margin-top:4px;">📖 ${k.definition||''}</div>
+              ${k.zh_translation?`<div style="color:var(--accent);margin-top:2px;">🇨🇳 ${k.zh_translation}</div>`:''}
+              ${k.zh_analogy?`<div style="color:var(--t3);margin-top:2px;font-style:italic;">💡 ${k.zh_analogy}</div>`:''}
+            </div>`
+          ).join('')
+        : '<div style="color:var(--t3);text-align:center;padding:30px;">暂无知识点</div>';
+      break;
+    case 2: // 📋 作业 — assignments with zh_description
+      lp.innerHTML=(l.assignments||[]).length
+        ? (l.assignments||[]).map(a=>
+            `<div style="padding:10px 8px;border-bottom:1px solid var(--brd);margin-bottom:4px;font-size:.82em;">
+              <strong>📋 ${a.description||'未命名作业'}</strong>
+              ${a.zh_description?`<div style="color:var(--accent);margin-top:2px;">🇨🇳 ${a.zh_description}</div>`:''}
+              ${a.due_date||a.dueDate?`<div style="color:var(--warn);margin-top:2px;font-size:.78em;">⏰ 截止: ${fmtDateFull(a.due_date||a.dueDate)}</div>`:''}
+            </div>`
+          ).join('')
+        : '<div style="color:var(--t3);text-align:center;padding:30px;">暂无作业</div>';
+      break;
+    case 3: // 📅 考试 — examInfo with zh_description
+      lp.innerHTML=(l.examInfo||[]).length
+        ? (l.examInfo||[]).map(e=>
+            `<div style="padding:10px 8px;border-bottom:1px solid var(--brd);margin-bottom:4px;font-size:.82em;">
+              <strong style="color:var(--danger);">📅 ${e.description||'考试安排'}</strong>
+              ${e.zh_description?`<div style="color:var(--accent);margin-top:2px;">🇨🇳 ${e.zh_description}</div>`:''}
+              ${e.due_date||e.dueDate?`<div style="color:var(--danger);margin-top:2px;font-size:.78em;">📆 日期: ${fmtDateFull(e.due_date||e.dueDate)}</div>`:''}
+            </div>`
+          ).join('')
+        : '<div style="color:var(--t3);text-align:center;padding:30px;">暂无考试信息</div>';
+      break;
+    case 4: // ⚠️ 注意事项 — alerts with zh_content
+      lp.innerHTML=(l.alerts||[]).length
+        ? (l.alerts||[]).map(a=>{
+            const txt=typeof a==='string'?a:(a.description||a.content||a.cn||a.alert||JSON.stringify(a));
+            const zh=typeof a==='object'?(a.zh_description||a.zh_content):'';
+            return `<div style="padding:10px 8px;border-bottom:1px solid var(--brd);margin-bottom:4px;font-size:.82em;">
+              <strong>⚠️ ${txt}</strong>
+              ${zh?`<div style="color:var(--accent);margin-top:2px;">🇨🇳 ${zh}</div>`:''}
+              ${a.importance?`<span class="tag" style="font-size:.68em;margin-left:6px;background:var(--wd);color:var(--warn);">${a.importance}</span>`:''}
+            </div>`;
+          }).join('')
+        : '<div style="color:var(--t3);text-align:center;padding:30px;">暂无注意事项</div>';
+      break;
+  }
+}
+
+// ======= SEARCH =======
+function rSearch(){
+  document.getElementById('ct').innerHTML=`<h1>🔍 全局搜索</h1><p class="sub">跨课程检索</p><input id="si" placeholder="搜索知识点、作业、笔记..." style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--brd);background:var(--bg);color:var(--text);font-size:.95em;outline:none;font-family:var(--ff);margin-bottom:16px;" oninput="doSearch()" autofocus><div id="sr"></div>`;
+}
+function doSearch(){
+  const q=document.getElementById('si')?.value;const sr=document.getElementById('sr');
+  if(!q||q.length<2){sr.innerHTML='<p style="color:var(--t3);text-align:center;padding:30px;">输入关键词搜索</p>';return;}
+  const r=DB.searchAll(q);
+  if(!r.length){sr.innerHTML='<p style="color:var(--t3);text-align:center;padding:30px;">未找到</p>';return;}
+  sr.innerHTML=r.map(i=>`<div class="sr-item" onclick="${i.cid&&i.lid?`goPage('lecture','${i.cid}/${i.lid}')`:(i.cid?`goPage('course','${i.cid}')`:'')}"><div class="tp">${i.type}</div><div class="tl">${i.title}</div>${i.sub?`<div class="ex">${i.sub}</div>`:''}</div>`).join('');
+}
+
+// ======= VOCAB =======
+function rVocab(){
+  let h=`<h1>📖 生词本</h1><p class="sub">${DB.d.vocab.length}个术语</p>`;
+  if(!DB.d.vocab.length){h+=`<div class="emp"><div class="ic">📖</div><h2>空</h2><p>在课时中点击术语→加入生词本</p></div>`;}
+  else{
+    h+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;">`;
+    DB.d.vocab.forEach(v=>h+=`<div class="card" style="cursor:default;"><div style="font-size:.72em;color:var(--t3);">${v.mastered?'⭐ 已掌握':'⬜ 待复习'}</div><strong>${v.term}</strong><div style="font-size:.82em;color:var(--t2);">🇨🇳 ${v.zhDef||''}</div><div style="font-size:.72em;color:var(--t3);margin-top:2px;">${v.enDef||''}</div><button class="btn btn-sm btn-o" style="margin-top:6px;" onclick="v.mastered=!v.mastered;DB.save();rVocab();">${v.mastered?'标记待复习':'标记已掌握'}</button></div>`);
+    h+=`</div>`;
+  }
+  document.getElementById('ct').innerHTML=h;
+}
+
+// ======= CHAT =======
+function rChat(){
+  let h=`<h1>🤖 AI课程助手</h1><p class="sub">基于已上传课程内容回答</p>`;
+  const totalL=DB.d.courses.reduce((s,c)=>s+c.lectures.length,0);
+  if(totalL===0){h+=`<div class="emp"><div class="ic">🤖</div><h2>还没有内容</h2><p>上传录音后可用</p></div>`;}
+  else{
+    h+=`<div class="card"><div style="display:flex;gap:8px;align-items:flex-start;"><span style="font-size:1.3em;">👤</span><div style="background:var(--bg);padding:10px;border-radius:8px;flex:1;">Explain monopoly deadweight loss</div></div><div style="display:flex;gap:8px;align-items:flex-start;margin-top:10px;"><span style="font-size:1.3em;">🤖</span><div style="background:var(--ad);padding:10px;border-radius:8px;flex:1;font-size:.85em;">Ask me anything about your lectures. I'll search through ${totalL} uploaded lectures to find the answer.</div></div></div>`;
+    h+=`<div style="margin-top:12px;"><input id="cq" placeholder="输入问题..." style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--brd);background:var(--bg);color:var(--text);outline:none;font-family:var(--ff);" onkeydown="if(event.key==='Enter')askChat()"><button class="btn btn-p btn-sm" style="margin-top:6px;" onclick="askChat()">发送</button></div><div id="chatResp"></div>`;
+  }
+  document.getElementById('ct').innerHTML=h;
+}
+
+async function askChat(){
+  const q=document.getElementById('cq')?.value;if(!q)return;
+  const resp=document.getElementById('chatResp');resp.innerHTML='<div class="ps cur"><span class="spin"></span> 思考中...</div>';
+
+  // Gather context
+  const ctx=[];DB.d.courses.forEach(c=>c.lectures.forEach(l=>{if(l.transcript){ctx.push(`[${c.name} - ${l.title}] `+l.transcript.map(s=>s.text).join(' ').substring(0,800));}}));
+
+  try{
+    const r=await fetch(API+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,context_chunks:ctx.slice(0,5)})});
+    if(r.ok){const d=await r.json();resp.innerHTML=`<div class="card" style="cursor:default;margin-top:10px;"><div style="color:var(--accent);font-weight:600;margin-bottom:6px;">🤖 回答</div><div style="font-size:.85em;line-height:1.6;">${d.answer}</div></div>`;}
+    else{resp.innerHTML=`<div class="card" style="border-color:var(--warn);">LLM不可用。启动后端：python3 server.py，并设置 DEEPSEEK_API_KEY</div>`;}
+  }catch(e){resp.innerHTML=`<div class="card" style="border-color:var(--danger);">后端连接失败：${e.message}</div>`;}
+}
+
+// ======= SCHEDULE =======
+function rSchedule(){
+  const dd=[];
+  DB.d.courses.forEach(c=>c.lectures.forEach(l=>{(l.assignments||[]).forEach(a=>dd.push({...a,type:'📋 作业',cn:c.name,date:a.due_date||a.dueDate}));
+    (l.examInfo||[]).forEach(e=>dd.push({...e,type:'📝 考试',description:e.description,cn:c.name,date:e.due_date||e.dueDate}));}));
+  dd.sort((a,b)=>(a.date||Infinity)-(b.date||Infinity));
+  let h=`<h1>📅 日程看板</h1><p class="sub">${dd.length}个事项</p>`;
+  if(!dd.length)h+=`<div class="emp"><div class="ic">📅</div><h2>暂无</h2><p>上传录音后AI自动提取</p></div>`;
+  else{dd.forEach(d=>{const days=daysUntil(d.date||Date.now());const urg=days<=7;
+    h+=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;"><div><strong>${d.type}: ${d.description||'未命名'}</strong><div style="font-size:.75em;color:var(--t2);">${d.cn} · ${d.date?fmtDateFull(d.date):''}</div></div><div style="font-size:1.3em;font-weight:800;color:${urg?'var(--danger)':'var(--accent)'};">${days}天</div></div></div>`;});}
+  document.getElementById('ct').innerHTML=h;
+}
+
+// ======= SETTINGS =======
+function rSettings(){
+  const cs=DB.d.courses;const tl=cs.reduce((s,c)=>s+c.lectures.length,0);
+  document.getElementById('ct').innerHTML=`<h1>⚙️ 设置</h1><div class="card" style="cursor:default;">
+    <div class="sr"><span>后端服务</span><span style="color:${DB.d.st.backend?'var(--accent)':'var(--danger)'};font-size:.8em;" id="backendStatus">检查中...</span></div>
+    <div class="sr"><span>Whisper模型</span><span style="color:var(--t2);font-size:.8em;">large-v3 (需要本地GPU)</span></div>
+    <div class="sr"><span>课程数</span><span style="color:var(--accent);">${cs.length}</span></div>
+    <div class="sr"><span>课时数</span><span style="color:var(--accent);">${tl}</span></div>
+    <div class="sr"><span>生词</span><span style="color:var(--accent);">${DB.d.vocab.length}</span></div>
+    <div class="sr"><span>存储</span><span style="color:var(--t2);font-size:.8em;">${(new Blob([localStorage.getItem(DB._k)||'']).size/1024).toFixed(1)}KB (元数据) + OPFS (音频)</span></div>
+  </div>
+  <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn btn-o btn-sm" onclick="exportData()">📥 导出备份</button>
+    <button class="btn btn-o btn-sm" onclick="document.getElementById('impF').click()">📤 导入</button><input id="impF" type="file" accept=".json" style="display:none" onchange="importData(this)">
+    <button class="btn btn-d btn-sm" onclick="if(confirm('清除所有数据？不可恢复！')){localStorage.clear();location.reload();}">🗑 清除</button>
+  </div>
+  <p style="font-size:.7em;color:var(--t3);margin-top:10px;">音频文件存储在浏览器OPFS中，清除浏览器数据会丢失</p>`;
+
+  // Check backend
+  fetch(API+'/health').then(r=>r.json()).then(d=>{
+    document.getElementById('backendStatus').textContent=d.gpu?`✅ 在线 (GPU, whisper ${d.whisper_model})`:`✅ 在线 (whisper ${d.whisper_model})`;
+  }).catch(()=>{document.getElementById('backendStatus').innerHTML='❌ 离线 <span style="font-size:.72em;">启动: python3 server.py</span>';});
+}
+
+function exportData(){
+  const b=new Blob([JSON.stringify(DB.d,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download='lecturevault-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+}
+function importData(input){
+  const f=input.files[0];if(!f)return;
+  const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.v){alert('无效备份');return;}DB.d=d;DB.save();DB.refresh();alert('✅ 导入成功');goPage('dashboard');}catch(e){alert('导入失败')}};
+  r.readAsText(f);
+}
+
+// ======= KEYBOARD =======
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();document.getElementById('qs')?.focus();}
+  if(e.key==='Escape'){document.getElementById('popup').classList.remove('ac');document.getElementById('modal').classList.remove('ac');}
+  if(e.key===' '&&document.activeElement===document.body){e.preventDefault();togglePlay();}
+});
+
+// ======= INIT =======
+DB.load();
+// Clean up lectures that were stuck in 'processing' on page refresh
+let cleaned=0;
+DB.d.courses.forEach(c=>c.lectures.forEach(l=>{
+  if(l.status==='processing'&&!l.transcript){
+    l.status='error';l.errorMsg='处理被中断（页面刷新）。点击重试。';
+    cleaned++;
+  }
+}));
+if(cleaned>0){DB.save();console.log('Cleaned',cleaned,'stuck lectures');}
+DB.refresh();applyTheme();
+if(window.location.search==='?init'){
+  fetch('setup_courses.json').then(r=>r.json()).then(d=>{
+    if(d.v&&d.courses){
+      // Only init if no existing courses
+      if(DB.d.courses.length===0){
+        DB.d=d; DB.save(); DB.refresh();
+        document.getElementById('ct').innerHTML='<div class="emp"><div class="ic">✅</div><h2>四门课程已导入！</h2><p>ECON2003 微观经济分析<br>ECON2004 宏观经济分析<br>ECON2032 计量经济学<br>BUSA1000 商业数据分析</p><button class="btn btn-p" onclick="goPage(\'dashboard\')">开始使用 →</button></div>';
+        return;
+      }
+    }
+    goPage('dashboard');
+  }).catch(()=>goPage('dashboard'));
+} else {
+  goPage('dashboard');
+}
+</script>
+</body>
+</html>
