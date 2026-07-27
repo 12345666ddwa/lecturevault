@@ -1,0 +1,47 @@
+{
+  "v": 2,
+  "courses": [
+    {
+      "id": "c_econ2003",
+      "name": "微观经济分析",
+      "code": "ECON2003",
+      "semester": "2026 S2",
+      "color": "#6DB58A",
+      "lectures": [],
+      "cts": 1785130194774
+    },
+    {
+      "id": "c_econ2004",
+      "name": "宏观经济分析",
+      "code": "ECON2004",
+      "semester": "2026 S2",
+      "color": "#60A5FA",
+      "lectures": [],
+      "cts": 1785130194774
+    },
+    {
+      "id": "c_econ2032",
+      "name": "计量经济学",
+      "code": "ECON2032",
+      "semester": "2026 S2",
+      "color": "#F59E0B",
+      "lectures": [],
+      "cts": 1785130194774
+    },
+    {
+      "id": "c_busa1000",
+      "name": "商业数据分析",
+      "code": "BUSA1000",
+      "semester": "2026 S2",
+      "color": "#C084FC",
+      "lectures": [],
+      "cts": 1785130194774
+    }
+  ],
+  "st": {
+    "theme": "dark",
+    "speed": 1,
+    "backend": true
+  },
+  "vocab": []
+}
