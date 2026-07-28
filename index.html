@@ -282,6 +282,35 @@ h1{font-size:1.5em;font-weight:700;margin-bottom:4px;}
   .bil-container{grid-template-columns:1fr;}
   .bil-col:first-child,.bil-col:last-child{border-radius:var(--r);}
 }
+
+/* Brief cards */
+.brief-timeline{position:relative;padding-left:28px;}
+.brief-timeline::before{content:'';position:absolute;left:8px;top:4px;bottom:4px;width:2px;background:var(--brd);border-radius:1px;}
+.brief-section{position:relative;margin-bottom:16px;background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);padding:14px 16px;transition:all .2s;}
+.brief-section:hover{border-color:var(--accent);}
+.brief-dot{position:absolute;left:-24px;top:16px;width:14px;height:14px;border-radius:50%;background:var(--accent);border:3px solid var(--bg);box-shadow:0 0 0 2px var(--accent);z-index:1;}
+.brief-time{display:inline-flex;align-items:center;gap:4px;font-size:.72em;color:var(--t3);background:var(--bg);padding:3px 10px;border-radius:12px;margin-bottom:8px;font-variant-numeric:tabular-nums;}
+.brief-topic{font-size:.95em;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.brief-summary{font-size:.82em;color:var(--text);line-height:1.65;margin-bottom:6px;}
+.brief-summary-zh{font-size:.8em;color:var(--t2);line-height:1.6;margin-bottom:10px;padding-left:8px;border-left:2px solid var(--accent);}
+.brief-example{background:var(--bg);border-left:3px solid var(--info);border-radius:0 var(--rs) var(--rs) 0;padding:10px 12px;margin:8px 0;font-size:.8em;}
+.brief-example .be-title{font-weight:600;color:var(--info);margin-bottom:4px;font-size:.85em;}
+.brief-example .be-ex{color:var(--text);margin-bottom:3px;line-height:1.5;}
+.brief-example .be-ex-zh{color:var(--t2);font-size:.92em;margin-bottom:6px;}
+.brief-data{display:inline-block;background:var(--wd);color:var(--warn);padding:2px 8px;border-radius:6px;font-weight:700;font-size:1.05em;margin:2px 0;font-variant-numeric:tabular-nums;}
+.brief-data-zh{display:inline-block;color:var(--t2);font-size:.88em;margin-left:4px;}
+.brief-insight{font-size:.8em;color:var(--p);margin-top:3px;}
+.brief-insight-zh{font-size:.78em;color:var(--t3);margin-top:1px;}
+.brief-conclusion{margin-top:6px;padding:8px 10px;background:var(--ad);border-radius:6px;font-size:.82em;font-weight:600;color:var(--accent);}
+.brief-conclusion-zh{font-size:.78em;color:var(--t2);margin-top:2px;}
+.brief-key{margin-top:10px;padding:8px 12px;background:rgba(192,132,252,0.1);border-radius:6px;font-size:.8em;border:1px dashed var(--p);}
+.brief-key .bk-title{font-weight:700;color:var(--p);margin-bottom:2px;}
+.brief-key .bk-en{color:var(--text);}
+.brief-key .bk-zh{color:var(--t2);font-size:.92em;margin-top:2px;}
+.brief-gen{text-align:center;padding:40px 20px;}
+.brief-gen .bg-icon{font-size:3em;margin-bottom:10px;}
+.brief-gen .bg-hint{font-size:.78em;color:var(--t3);margin:8px 0;}
+.brief-load{text-align:center;padding:30px;color:var(--t2);}
 </style>
 </head>
 <body>
@@ -761,7 +790,7 @@ function rLectureDetail(){
     h+=`<div class="plb"><button class="btn btn-p btn-sm" id="playBtn" onclick="togglePlay()">▶</button><span class="plt" id="timeDisplay">00:00</span><div id="waveform" style="flex:1;height:64px;"></div><span class="plt">${fmtTime(l.duration)}</span><select id="spd" onchange="changeSpeed()" style="background:var(--bg);border:1px solid var(--brd);color:var(--text);padding:3px 6px;border-radius:4px;font-size:.75em;"><option>0.75x</option><option selected>1.0x</option><option>1.25x</option><option>1.5x</option><option>2.0x</option></select><audio id="fallbackAudio" style="display:none;" preload="metadata"></audio></div>`;
 
     // Split view
-    h+=`<div class="ls"><div class="pnl"><div class="ptabs">${['📝 文稿','🧠 知识点','📋 作业','📅 考试','⚠️'].map((t,i)=>`<button class="pt${i===0?' ac':''}" onclick="switchLeftTab(${i})">${t}</button>`).join('')}</div><div class="pct" id="lp">`;
+    h+=`<div class="ls"><div class="pnl"><div class="ptabs">${['📝 文稿','🧠 知识点','📋 作业','📅 考试','⚠️','📋 简报'].map((t,i)=>`<button class="pt${i===0?' ac':''}" onclick="switchLeftTab(${i})">${t}</button>`).join('')}</div><div class="pct" id="lp">`;
     l.transcript.forEach((s,i)=>{
       const tl=(l.translations||[]).find(t=>t.start===s.start&&t.end===s.end);
       h+=`<div class="tl" data-t="${s.start}" onclick="jumpTo(${s.start})"><span class="tt">${fmtTime(s.start)}</span><div><span>${hlText(s.text,l)}</span>${tl&&tl.translation?`<div style="color:var(--accent);font-size:.85em;margin-top:2px;padding-left:2px;">🇨🇳 ${escHtml(tl.translation)}</div>`:''}</div></div>`;
@@ -1007,7 +1036,107 @@ function switchLeftTab(idx){
           }).join('')
         : '<div style="color:var(--t3);text-align:center;padding:30px;">暂无注意事项</div>';
       break;
+    case 5: // 📋 简报
+      if (!_cl) return;
+      if (_cl.brief && _cl.brief.sections) {
+        renderBrief(_cl.brief);
+      } else {
+        lp.innerHTML = `<div class="brief-gen">
+          <div class="bg-icon">📋</div>
+          <h3 style="color:var(--text);margin-bottom:4px;">课堂简报</h3>
+          <p class="bg-hint">基于转录文稿，按老师讲课顺序生成结构化总结<br>包含例子、数据、结论，中英双语对照</p>
+          <button class="btn btn-p" onclick="generateBrief()">🤖 生成课堂简报</button>
+        </div>`;
+      }
+      break;
   }
+}
+
+// ======= BRIEF GENERATION =======
+async function generateBrief(){
+  if(!_cl||!_cc)return;
+  const l=_cl;
+  if(!l.transcript){alert('没有文稿，无法生成简报');return;}
+
+  const lp=document.getElementById('lp');
+  if(lp)lp.innerHTML='<div class="brief-load"><span class="spin"></span> 🤖 AI正在生成课堂简报...<br><span style="font-size:.72em;color:var(--t3);">分析讲课结构、提取例子和数据...</span></div>';
+
+  try{
+    const r=await fetch(API+'/generate-brief',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({segments:l.transcript,concepts:l.concepts||[]})
+    });
+    if(!r.ok){const et=await r.text();throw new Error('生成失败('+r.status+'): '+et.substring(0,120));}
+    const data=await r.json();
+
+    // Save to lecture
+    l.brief=data;
+    DB.updateLecture(_cc.id,_cl.id,{brief:data});
+
+    renderBrief(data);
+  }catch(e){
+    console.error(e);
+    if(lp)lp.innerHTML=`<div class="card" style="border-color:var(--danger);text-align:center;cursor:default;"><strong style="color:var(--danger);">❌ ${e.message}</strong><p style="font-size:.78em;margin-top:4px;">后端运行中？需设置 DEEPSEEK_API_KEY</p><button class="btn btn-o btn-sm" style="margin-top:8px;" onclick="generateBrief()">🔄 重试</button></div>`;
+  }
+}
+
+function renderBrief(data){
+  const lp=document.getElementById('lp');
+  if(!lp)return;
+  const sections=data.sections||[];
+  if(!sections.length){lp.innerHTML='<div style="color:var(--t3);text-align:center;padding:30px;">未能生成简报</div>';return;}
+
+  let h=`<div class="brief-timeline">`;
+  sections.forEach((sec,si)=>{
+    h+=`<div class="brief-section">
+      <div class="brief-dot"></div>
+      <div class="brief-time">🕐 ${escHtml(sec.time_range||'')}</div>
+      <div class="brief-topic">${escHtml(sec.topic||'')}${sec.topic_zh?`<span style="font-size:.82em;color:var(--t2);margin-left:6px;">/ ${escHtml(sec.topic_zh)}</span>`:''}</div>
+      <div class="brief-summary">📖 ${escHtml(sec.summary||'')}</div>
+      ${sec.summary_zh?`<div class="brief-summary-zh">🇨🇳 ${escHtml(sec.summary_zh)}</div>`:''}`;
+
+    // Examples
+    if(sec.examples&&sec.examples.length){
+      sec.examples.forEach(ex=>{
+        h+=`<div class="brief-example">
+          <div class="be-title">💡 例子 / Example</div>
+          ${ex.example?`<div class="be-ex">${escHtml(ex.example)}</div>`:''}
+          ${ex.example_zh?`<div class="be-ex-zh">🇨🇳 ${escHtml(ex.example_zh)}</div>`:''}`;
+        if(ex.data||ex.data_zh){
+          h+=`<div style="margin:4px 0;">📊 <span class="brief-data">${escHtml(ex.data||'')}</span>${ex.data_zh?`<span class="brief-data-zh">${escHtml(ex.data_zh)}</span>`:''}</div>`;
+        }
+        if(ex.insight||ex.insight_zh){
+          h+=`<div class="brief-insight">🔍 ${escHtml(ex.insight||'')}</div>`;
+          if(ex.insight_zh)h+=`<div class="brief-insight-zh">🇨🇳 ${escHtml(ex.insight_zh)}</div>`;
+        }
+        if(ex.conclusion||ex.conclusion_zh){
+          h+=`<div class="brief-conclusion">🎯 ${escHtml(ex.conclusion||'')}</div>`;
+          if(ex.conclusion_zh)h+=`<div class="brief-conclusion-zh">🇨🇳 ${escHtml(ex.conclusion_zh)}</div>`;
+        }
+        h+=`</div>`;
+      });
+    }
+
+    // Key takeaway
+    if(sec.key_takeaway||sec.key_takeaway_zh){
+      h+=`<div class="brief-key">
+        <div class="bk-title">⭐ 核心要点 / Key Takeaway</div>
+        ${sec.key_takeaway?`<div class="bk-en">${escHtml(sec.key_takeaway)}</div>`:''}
+        ${sec.key_takeaway_zh?`<div class="bk-zh">🇨🇳 ${escHtml(sec.key_takeaway_zh)}</div>`:''}
+      </div>`;
+    }
+
+    h+=`</div>`;
+  });
+  h+=`</div>`;
+
+  // Regenerate button at bottom
+  h+=`<div style="text-align:center;margin-top:12px;padding-bottom:8px;">
+    <button class="btn btn-o btn-sm" onclick="generateBrief()">🔄 重新生成简报</button>
+  </div>`;
+
+  lp.innerHTML=h;
 }
 
 // ======= SEARCH =======
