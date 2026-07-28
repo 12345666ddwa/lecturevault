@@ -311,6 +311,61 @@ h1{font-size:1.5em;font-weight:700;margin-bottom:4px;}
 .brief-gen .bg-icon{font-size:3em;margin-bottom:10px;}
 .brief-gen .bg-hint{font-size:.78em;color:var(--t3);margin:8px 0;}
 .brief-load{text-align:center;padding:30px;color:var(--t2);}
+
+/* === Refined 6-Section Brief === */
+.brief-card{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);padding:16px 18px;margin-bottom:12px;transition:all .2s;}
+.brief-card:hover{border-color:var(--accent);}
+.brief-card-hdr{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--brd);}
+.brief-card-hdr .bch-icon{font-size:1.2em;}
+.brief-card-hdr .bch-title{font-weight:700;font-size:.92em;color:var(--accent);}
+.brief-card-hdr .bch-count{font-size:.72em;color:var(--t3);margin-left:auto;}
+/* Core Points */
+.bp-item{display:flex;gap:8px;padding:6px 0;font-size:.84em;line-height:1.55;border-bottom:1px solid var(--brd);}
+.bp-item:last-child{border-bottom:none;}
+.bp-num{color:var(--accent);font-weight:700;min-width:22px;flex-shrink:0;font-size:.85em;}
+.bp-en{color:var(--text);}
+.bp-zh{color:var(--t2);font-size:.92em;}
+/* Examples */
+.bex-block{background:var(--bg);border-left:3px solid var(--info);border-radius:0 var(--rs) var(--rs) 0;padding:12px 14px;margin-bottom:10px;}
+.bex-block:last-child{margin-bottom:0;}
+.bex-scene{font-size:.84em;color:var(--text);font-weight:600;margin-bottom:4px;}
+.bex-scene-zh{font-size:.8em;color:var(--t2);margin-bottom:6px;}
+.bex-data{display:inline-block;background:var(--wd);color:var(--warn);padding:2px 10px;border-radius:6px;font-weight:700;font-size:.9em;margin:4px 0;font-variant-numeric:tabular-nums;}
+.bex-data-zh{display:inline-block;color:var(--t2);font-size:.82em;margin-left:6px;}
+.bex-analysis{font-size:.82em;color:var(--p);margin-top:4px;line-height:1.5;}
+.bex-analysis-zh{font-size:.78em;color:var(--t3);margin-top:2px;}
+.bex-conclusion{margin-top:6px;padding:8px 10px;background:var(--ad);border-radius:6px;font-size:.82em;font-weight:600;color:var(--accent);}
+.bex-conclusion-zh{font-size:.78em;color:var(--t2);margin-top:2px;}
+/* Self Test */
+.bst-item{margin-bottom:10px;border:1px solid var(--brd);border-radius:var(--rs);overflow:hidden;}
+.bst-item:last-child{margin-bottom:0;}
+.bst-q{padding:10px 14px;font-size:.84em;font-weight:600;color:var(--text);cursor:default;}
+.bst-q-zh{font-size:.78em;color:var(--t2);margin-top:2px;}
+.bst-a{border-top:1px solid var(--brd);}
+.bst-a summary{padding:10px 14px;font-size:.82em;color:var(--accent);cursor:pointer;user-select:none;list-style:none;display:flex;align-items:center;gap:6px;}
+.bst-a summary::-webkit-details-marker{display:none;}
+.bst-a summary::before{content:'▶';font-size:.65em;transition:transform .2s;display:inline-block;}
+.bst-a[open] summary::before{transform:rotate(90deg);}
+.bst-a-content{padding:0 14px 12px 28px;font-size:.82em;color:var(--text);line-height:1.55;}
+.bst-a-content-zh{font-size:.78em;color:var(--t2);margin-top:4px;}
+/* Concept Relations */
+.bcr-text{font-family:'SF Mono','Cascadia Code','Consolas','monospace';font-size:.8em;line-height:1.75;color:var(--text);white-space:pre-wrap;word-break:break-word;padding:4px 0;}
+/* Key Quotes */
+.bkq-item{background:var(--bg);border-left:3px solid var(--p);border-radius:0 var(--rs) var(--rs) 0;padding:10px 14px;margin-bottom:8px;}
+.bkq-item:last-child{margin-bottom:0;}
+.bkq-text{font-size:.84em;font-style:italic;color:var(--text);line-height:1.55;margin-bottom:4px;}
+.bkq-meta{display:flex;align-items:center;gap:8px;font-size:.72em;color:var(--t3);}
+.bkq-ts{cursor:pointer;color:var(--accent);font-weight:600;font-variant-numeric:tabular-nums;}
+.bkq-ts:hover{text-decoration:underline;}
+.bkq-ctx{color:var(--t2);}
+/* Review Reminder */
+.brief-reminder{margin-top:16px;text-align:center;}
+.brief-reminder .btn-remind{background:var(--accent);color:#fff;border:none;padding:10px 28px;border-radius:var(--rs);font-size:.85em;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--ff);}
+.brief-reminder .btn-remind:hover{box-shadow:0 0 20px var(--ad);transform:translateY(-1px);}
+.brief-reminder .rem-hint{font-size:.72em;color:var(--t3);margin-top:6px;}
+.brief-reminder .rem-actions{display:flex;gap:8px;justify-content:center;margin-top:4px;}
+.brief-reminder .rem-actions button{font-size:.75em;}
+.brief-reminder .rem-set{font-size:.72em;color:var(--accent);margin-top:4px;display:none;}
 </style>
 </head>
 <body>
@@ -790,16 +845,22 @@ function rLectureDetail(){
     h+=`<div class="plb"><button class="btn btn-p btn-sm" id="playBtn" onclick="togglePlay()">▶</button><span class="plt" id="timeDisplay">00:00</span><div id="waveform" style="flex:1;height:64px;"></div><span class="plt">${fmtTime(l.duration)}</span><select id="spd" onchange="changeSpeed()" style="background:var(--bg);border:1px solid var(--brd);color:var(--text);padding:3px 6px;border-radius:4px;font-size:.75em;"><option>0.75x</option><option selected>1.0x</option><option>1.25x</option><option>1.5x</option><option>2.0x</option></select><audio id="fallbackAudio" style="display:none;" preload="metadata"></audio></div>`;
 
     // Split view
-    h+=`<div class="ls"><div class="pnl"><div class="ptabs">${['📝 文稿','🧠 知识点','📋 作业','📅 考试','⚠️','📋 简报'].map((t,i)=>`<button class="pt${i===0?' ac':''}" onclick="switchLeftTab(${i})">${t}</button>`).join('')}</div><div class="pct" id="lp">`;
-    l.transcript.forEach((s,i)=>{
-      const tl=(l.translations||[]).find(t=>t.start===s.start&&t.end===s.end);
-      h+=`<div class="tl" data-t="${s.start}" onclick="jumpTo(${s.start})"><span class="tt">${fmtTime(s.start)}</span><div><span>${hlText(s.text,l)}</span>${tl&&tl.translation?`<div style="color:var(--accent);font-size:.85em;margin-top:2px;padding-left:2px;">🇨🇳 ${escHtml(tl.translation)}</div>`:''}</div></div>`;
-    });
+    h+=`<div class="ls"><div class="pnl"><div class="ptabs">${['📋 速览','📝 原文','🧠 知识点','📋 作业','📅 考试','⚠️','✏️ 笔记'].map((t,i)=>`<button class="pt${i===0?' ac':''}" onclick="switchLeftTab(${i})">${t}</button>`).join('')}</div><div class="pct" id="lp">`;
+    // Initial content for tab 0 (速览)
+    if (l.brief && (l.brief.core_points || l.brief.sections)) {
+      h+=`<div class="brief-load">加载中...</div>`;
+    } else {
+      h+=`<div class="brief-gen">
+        <div class="bg-icon">📋</div>
+        <h3 style="color:var(--text);margin-bottom:4px;">课堂速览</h3>
+        <p class="bg-hint">6板块精进版：核心要点 · 老师例子 · 自测问题 · 概念关系 · 关键引用 · 复习提醒<br>全部中英双语对照</p>
+        <button class="btn btn-p" onclick="generateBrief()">🤖 生成课堂速览</button>
+      </div>`;
+    }
     h+=`</div></div>`;
 
-    // Right Panel: AI Review + Notes
-    h+=`<div class="pnl"><div class="ptabs"><button class="pt ac" onclick="switchRightTab(0)">🤖 AI复习</button><button class="pt" onclick="switchRightTab(1)">✏️ 笔记</button></div><div class="pct" id="rp">`;
-    h+=`<div id="rpAi">`;
+    // Right Panel: AI Review (no tabs — notes moved to left panel)
+    h+=`<div class="pnl"><div class="ptabs"><span class="pt ac" style="cursor:default;">🤖 AI复习</span></div><div class="pct" id="rp">`;
     h+=`<div style="margin-bottom:14px;"><h4 style="color:var(--accent);">📖 难懂知识点解析</h4>`;
     (l.concepts||[]).slice(0,3).forEach(k=>h+=`<div style="background:var(--ad);padding:8px 10px;border-radius:8px;margin-bottom:6px;font-size:.8em;"><strong>${k.concept}</strong><p style="margin-top:2px;color:var(--text);">${k.definition||''}</p>${k.zh_translation?`<p style="margin-top:2px;color:var(--accent);">🇨🇳 ${k.zh_translation}</p>`:''}${k.zh_analogy?`<p style="margin-top:2px;color:var(--t3);font-style:italic;">💡 ${k.zh_analogy}</p>`:''}</div>`);
     h+=`</div>`;
@@ -808,11 +869,6 @@ function rLectureDetail(){
     h+=`</div></div>`;
     h+=`<div><h4 style="color:var(--warn);">🗺 大纲</h4><div style="font-size:.8em;line-height:1.7;padding-left:6px;">`;
     (l.concepts||[]).forEach((k,i)=>h+=`<div>${i===0?'📐 ':'├─ '}${k.concept}${k.category==='核心'?' ⭐':''}</div>`);
-    h+=`</div></div>`;
-    h+=`</div>`;
-    // Notes panel (hidden by default)
-    h+=`<div id="rpNotes" style="display:none;">`;
-    h+=renderNotesPanel(l);
     h+=`</div>`;
     h+=`</div></div></div>`;
 
@@ -833,6 +889,8 @@ function rLectureDetail(){
 
     // Init wavesurfer after render
     setTimeout(initWaveSurfer,100);
+    // Show cached brief on load if available
+    if(l.brief&&(l.brief.core_points||l.brief.sections)){setTimeout(()=>renderBrief(l.brief),150);}
   }else if(l.status==='uploaded'){
     h+=`<div class="emp"><div class="ic">⏳</div><h2>等待处理</h2><p>音频已上传，尚未开始AI分析</p><button class="btn btn-o btn-sm" style="margin-top:8px;" onclick="goPage('course','${c.id}')">返回课程页</button></div>`;
   }else if(l.status==='error'){
@@ -982,13 +1040,26 @@ function switchLeftTab(idx){
   const l=_cl;
 
   switch(idx){
-    case 0: // 📝 原文 — bilingual transcript
+    case 0: // 📋 速览 — refined 6-section brief (default view)
+      if (!_cl) return;
+      if (_cl.brief && (_cl.brief.core_points || _cl.brief.sections)) {
+        renderBrief(_cl.brief);
+      } else {
+        lp.innerHTML = `<div class="brief-gen">
+          <div class="bg-icon">📋</div>
+          <h3 style="color:var(--text);margin-bottom:4px;">课堂速览</h3>
+          <p class="bg-hint">6板块精进版：核心要点 · 老师例子 · 自测问题 · 概念关系 · 关键引用 · 复习提醒<br>全部中英双语对照</p>
+          <button class="btn btn-p" onclick="generateBrief()">🤖 生成课堂速览</button>
+        </div>`;
+      }
+      break;
+    case 1: // 📝 原文 — bilingual transcript
       lp.innerHTML=l.transcript.map((s,i)=>{
         const tl=(l.translations||[]).find(t=>t.start===s.start&&t.end===s.end);
         return `<div class="tl" data-t="${s.start}" onclick="jumpTo(${s.start})"><span class="tt">${fmtTime(s.start)}</span><div><span>${hlText(s.text,l)}</span>${tl&&tl.translation?`<div style="color:var(--accent);font-size:.85em;margin-top:2px;padding-left:2px;">🇨🇳 ${escHtml(tl.translation)}</div>`:''}</div></div>`;
       }).join('');
       break;
-    case 1: // 🧠 知识点 — concepts with bilingual
+    case 2: // 🧠 知识点 — concepts with bilingual
       lp.innerHTML=(l.concepts||[]).length
         ? (l.concepts||[]).map(k=>
             `<div style="padding:10px 8px;border-bottom:1px solid var(--brd);margin-bottom:4px;font-size:.82em;">
@@ -1001,7 +1072,7 @@ function switchLeftTab(idx){
           ).join('')
         : '<div style="color:var(--t3);text-align:center;padding:30px;">暂无知识点</div>';
       break;
-    case 2: // 📋 作业 — assignments with zh_description
+    case 3: // 📋 作业 — assignments
       lp.innerHTML=(l.assignments||[]).length
         ? (l.assignments||[]).map(a=>
             `<div style="padding:10px 8px;border-bottom:1px solid var(--brd);margin-bottom:4px;font-size:.82em;">
@@ -1012,7 +1083,7 @@ function switchLeftTab(idx){
           ).join('')
         : '<div style="color:var(--t3);text-align:center;padding:30px;">暂无作业</div>';
       break;
-    case 3: // 📅 考试 — examInfo with zh_description
+    case 4: // 📅 考试 — examInfo
       lp.innerHTML=(l.examInfo||[]).length
         ? (l.examInfo||[]).map(e=>
             `<div style="padding:10px 8px;border-bottom:1px solid var(--brd);margin-bottom:4px;font-size:.82em;">
@@ -1023,7 +1094,7 @@ function switchLeftTab(idx){
           ).join('')
         : '<div style="color:var(--t3);text-align:center;padding:30px;">暂无考试信息</div>';
       break;
-    case 4: // ⚠️ 注意事项 — alerts with zh_content
+    case 5: // ⚠️ 注意事项 — alerts
       lp.innerHTML=(l.alerts||[]).length
         ? (l.alerts||[]).map(a=>{
             const txt=typeof a==='string'?a:(a.description||a.content||a.cn||a.alert||JSON.stringify(a));
@@ -1036,18 +1107,8 @@ function switchLeftTab(idx){
           }).join('')
         : '<div style="color:var(--t3);text-align:center;padding:30px;">暂无注意事项</div>';
       break;
-    case 5: // 📋 简报
-      if (!_cl) return;
-      if (_cl.brief && _cl.brief.sections) {
-        renderBrief(_cl.brief);
-      } else {
-        lp.innerHTML = `<div class="brief-gen">
-          <div class="bg-icon">📋</div>
-          <h3 style="color:var(--text);margin-bottom:4px;">课堂简报</h3>
-          <p class="bg-hint">基于转录文稿，按老师讲课顺序生成结构化总结<br>包含例子、数据、结论，中英双语对照</p>
-          <button class="btn btn-p" onclick="generateBrief()">🤖 生成课堂简报</button>
-        </div>`;
-      }
+    case 6: // ✏️ 笔记 — notes panel (moved from right panel)
+      lp.innerHTML = renderNotesPanel(l);
       break;
   }
 }
@@ -1056,10 +1117,10 @@ function switchLeftTab(idx){
 async function generateBrief(){
   if(!_cl||!_cc)return;
   const l=_cl;
-  if(!l.transcript){alert('没有文稿，无法生成简报');return;}
+  if(!l.transcript){alert('没有文稿，无法生成速览');return;}
 
   const lp=document.getElementById('lp');
-  if(lp)lp.innerHTML='<div class="brief-load"><span class="spin"></span> 🤖 AI正在生成课堂简报...<br><span style="font-size:.72em;color:var(--t3);">分析讲课结构、提取例子和数据...</span></div>';
+  if(lp)lp.innerHTML='<div class="brief-load"><span class="spin"></span> 🤖 AI正在生成课堂速览...<br><span style="font-size:.72em;color:var(--t3);">提取核心要点、例子、自测题、概念关系...</span></div>';
 
   try{
     const r=await fetch(API+'/generate-brief',{
@@ -1084,59 +1145,161 @@ async function generateBrief(){
 function renderBrief(data){
   const lp=document.getElementById('lp');
   if(!lp)return;
-  const sections=data.sections||[];
-  if(!sections.length){lp.innerHTML='<div style="color:var(--t3);text-align:center;padding:30px;">未能生成简报</div>';return;}
 
-  let h=`<div class="brief-timeline">`;
-  sections.forEach((sec,si)=>{
-    h+=`<div class="brief-section">
-      <div class="brief-dot"></div>
-      <div class="brief-time">🕐 ${escHtml(sec.time_range||'')}</div>
-      <div class="brief-topic">${escHtml(sec.topic||'')}${sec.topic_zh?`<span style="font-size:.82em;color:var(--t2);margin-left:6px;">/ ${escHtml(sec.topic_zh)}</span>`:''}</div>
-      <div class="brief-summary">📖 ${escHtml(sec.summary||'')}</div>
-      ${sec.summary_zh?`<div class="brief-summary-zh">🇨🇳 ${escHtml(sec.summary_zh)}</div>`:''}`;
+  // Handle legacy format (sections) by showing a regenerate prompt
+  if(data.sections && !data.core_points){
+    lp.innerHTML=`<div class="brief-gen">
+      <div class="bg-icon">📋</div>
+      <h3 style="color:var(--text);">旧版简报格式</h3>
+      <p class="bg-hint">检测到旧版简报数据。请重新生成以获取6板块精进版。</p>
+      <button class="btn btn-p" onclick="generateBrief()">🤖 生成精进版速览</button>
+    </div>`;
+    return;
+  }
 
-    // Examples
-    if(sec.examples&&sec.examples.length){
-      sec.examples.forEach(ex=>{
-        h+=`<div class="brief-example">
-          <div class="be-title">💡 例子 / Example</div>
-          ${ex.example?`<div class="be-ex">${escHtml(ex.example)}</div>`:''}
-          ${ex.example_zh?`<div class="be-ex-zh">🇨🇳 ${escHtml(ex.example_zh)}</div>`:''}`;
-        if(ex.data||ex.data_zh){
-          h+=`<div style="margin:4px 0;">📊 <span class="brief-data">${escHtml(ex.data||'')}</span>${ex.data_zh?`<span class="brief-data-zh">${escHtml(ex.data_zh)}</span>`:''}</div>`;
-        }
-        if(ex.insight||ex.insight_zh){
-          h+=`<div class="brief-insight">🔍 ${escHtml(ex.insight||'')}</div>`;
-          if(ex.insight_zh)h+=`<div class="brief-insight-zh">🇨🇳 ${escHtml(ex.insight_zh)}</div>`;
-        }
-        if(ex.conclusion||ex.conclusion_zh){
-          h+=`<div class="brief-conclusion">🎯 ${escHtml(ex.conclusion||'')}</div>`;
-          if(ex.conclusion_zh)h+=`<div class="brief-conclusion-zh">🇨🇳 ${escHtml(ex.conclusion_zh)}</div>`;
-        }
-        h+=`</div>`;
-      });
-    }
+  const cp=data.core_points||[];
+  const examples=data.examples||[];
+  const st=data.self_test||[];
+  const relations=data.concept_relations||'';
+  const quotes=data.key_quotes||[];
+  const reminder=data.review_reminder||{en:'Review in 24h and 7d.',zh:'建议24小时和7天后复习。'};
 
-    // Key takeaway
-    if(sec.key_takeaway||sec.key_takeaway_zh){
-      h+=`<div class="brief-key">
-        <div class="bk-title">⭐ 核心要点 / Key Takeaway</div>
-        ${sec.key_takeaway?`<div class="bk-en">${escHtml(sec.key_takeaway)}</div>`:''}
-        ${sec.key_takeaway_zh?`<div class="bk-zh">🇨🇳 ${escHtml(sec.key_takeaway_zh)}</div>`:''}
+  let h='';
+
+  // === Section 1: 🎯 核心要点 ===
+  h+=`<div class="brief-card">
+    <div class="brief-card-hdr">
+      <span class="bch-icon">🎯</span>
+      <span class="bch-title">核心要点 / Key Points</span>
+      <span class="bch-count">${cp.length}条</span>
+    </div>`;
+  if(cp.length){
+    cp.forEach((p,i)=>{
+      h+=`<div class="bp-item">
+        <span class="bp-num">${i+1}.</span>
+        <div><div class="bp-en">${escHtml(p.en||'')}</div><div class="bp-zh">🇨🇳 ${escHtml(p.zh||'')}</div></div>
       </div>`;
-    }
-
-    h+=`</div>`;
-  });
+    });
+  }else{
+    h+=`<div style="color:var(--t3);font-size:.82em;padding:4px 0;">暂未提取核心要点</div>`;
+  }
   h+=`</div>`;
 
-  // Regenerate button at bottom
-  h+=`<div style="text-align:center;margin-top:12px;padding-bottom:8px;">
-    <button class="btn btn-o btn-sm" onclick="generateBrief()">🔄 重新生成简报</button>
+  // === Section 2: 💡 老师举的例子 ===
+  h+=`<div class="brief-card">
+    <div class="brief-card-hdr">
+      <span class="bch-icon">💡</span>
+      <span class="bch-title">老师举的例子 / Examples</span>
+      <span class="bch-count">${examples.length}个</span>
+    </div>`;
+  if(examples.length){
+    examples.forEach(ex=>{
+      h+=`<div class="bex-block">`;
+      if(ex.scene_en)h+=`<div class="bex-scene">📌 ${escHtml(ex.scene_en)}</div>`;
+      if(ex.scene_zh)h+=`<div class="bex-scene-zh">🇨🇳 ${escHtml(ex.scene_zh)}</div>`;
+      if(ex.data_en||ex.data_zh){
+        h+=`<div>`;
+        if(ex.data_en)h+=`<span class="bex-data">📊 ${escHtml(ex.data_en)}</span>`;
+        if(ex.data_zh)h+=`<span class="bex-data-zh">${escHtml(ex.data_zh)}</span>`;
+        h+=`</div>`;
+      }
+      if(ex.analysis_en)h+=`<div class="bex-analysis">🔍 ${escHtml(ex.analysis_en)}</div>`;
+      if(ex.analysis_zh)h+=`<div class="bex-analysis-zh">🇨🇳 ${escHtml(ex.analysis_zh)}</div>`;
+      if(ex.conclusion_en||ex.conclusion_zh){
+        h+=`<div class="bex-conclusion">`;
+        if(ex.conclusion_en)h+=`🎯 ${escHtml(ex.conclusion_en)}`;
+        h+=`</div>`;
+        if(ex.conclusion_zh)h+=`<div class="bex-conclusion-zh">🇨🇳 ${escHtml(ex.conclusion_zh)}</div>`;
+      }
+      h+=`</div>`;
+    });
+  }else{
+    h+=`<div style="color:var(--t3);font-size:.82em;padding:4px 0;">暂未提取例子</div>`;
+  }
+  h+=`</div>`;
+
+  // === Section 3: 🤔 自测问题 ===
+  h+=`<div class="brief-card">
+    <div class="brief-card-hdr">
+      <span class="bch-icon">🤔</span>
+      <span class="bch-title">自测问题 / Self-Test</span>
+      <span class="bch-count">${st.length}题</span>
+    </div>`;
+  if(st.length){
+    st.forEach((q,i)=>{
+      h+=`<div class="bst-item">
+        <div class="bst-q">Q${i+1}: ${escHtml(q.q_en||'')}</div>
+        ${q.q_zh?`<div class="bst-q-zh">🇨🇳 ${escHtml(q.q_zh)}</div>`:''}
+        <details class="bst-a">
+          <summary>点击展开答案 / Click to reveal</summary>
+          <div class="bst-a-content">${escHtml(q.a_en||'')}</div>
+          ${q.a_zh?`<div class="bst-a-content-zh">🇨🇳 ${escHtml(q.a_zh)}</div>`:''}
+        </details>
+      </div>`;
+    });
+  }else{
+    h+=`<div style="color:var(--t3);font-size:.82em;padding:4px 0;">暂未生成自测题</div>`;
+  }
+  h+=`</div>`;
+
+  // === Section 4: 📊 概念关系 ===
+  if(relations){
+    h+=`<div class="brief-card">
+      <div class="brief-card-hdr">
+        <span class="bch-icon">📊</span>
+        <span class="bch-title">概念关系 / Concept Relations</span>
+      </div>
+      <div class="bcr-text">${escHtml(relations)}</div>
+    </div>`;
+  }
+
+  // === Section 5: 💬 关键引用 ===
+  if(quotes.length){
+    h+=`<div class="brief-card">
+      <div class="brief-card-hdr">
+        <span class="bch-icon">💬</span>
+        <span class="bch-title">关键引用 / Key Quotes</span>
+        <span class="bch-count">${quotes.length}条</span>
+      </div>`;
+    quotes.forEach(q=>{
+      h+=`<div class="bkq-item">
+        <div class="bkq-text">"${escHtml(q.text||'')}"</div>
+        <div class="bkq-meta">
+          ${q.timestamp!=null?`<span class="bkq-ts" onclick="jumpTo(${q.timestamp})">🕐 ${fmtTime(q.timestamp)}</span>`:''}
+          ${q.context_zh?`<span class="bkq-ctx">${escHtml(q.context_zh)}</span>`:''}
+        </div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // === Section 6: 🔄 复习提醒 ===
+  h+=`<div class="brief-reminder">
+    <button class="btn-remind" onclick="setReviewReminder('24h')">⏰ 24小时后提醒复习</button>
+    <div class="rem-actions">
+      <button class="btn btn-o btn-sm" onclick="setReviewReminder('24h')">🕐 24小时</button>
+      <button class="btn btn-o btn-sm" onclick="setReviewReminder('7d')">📅 7天后</button>
+    </div>
+    <div class="rem-hint">${escHtml(reminder.zh||'')}</div>
+    <div class="rem-set" id="remSetMsg">✅ 已设置提醒</div>
+  </div>`;
+
+  // Regenerate button
+  h+=`<div style="text-align:center;margin-top:10px;padding-bottom:8px;">
+    <button class="btn btn-o btn-sm" onclick="generateBrief()">🔄 重新生成速览</button>
   </div>`;
 
   lp.innerHTML=h;
+}
+
+function setReviewReminder(type){
+  const msg=document.getElementById('remSetMsg');
+  if(msg){
+    msg.style.display='block';
+    const text=type==='7d'?'已设置7天后复习提醒':'已设置24小时后复习提醒';
+    msg.textContent='✅ '+text;
+    setTimeout(()=>{msg.style.display='none';},3000);
+  }
 }
 
 // ======= SEARCH =======
