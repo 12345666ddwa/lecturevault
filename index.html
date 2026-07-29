@@ -849,6 +849,8 @@ function rLectureDetail(){
     // Initial content for tab 0 (速览)
     if (l.brief && (l.brief.core_points || l.brief.sections)) {
       h+=`<div class="brief-load">加载中...</div>`;
+    } else if (l.briefStatus === 'generating') {
+      h+=`<div class="brief-load"><span class="spin"></span> 速览生成中，正在恢复...</div>`;
     } else {
       h+=`<div class="brief-gen">
         <div class="bg-icon">📋</div>
@@ -891,6 +893,7 @@ function rLectureDetail(){
     setTimeout(initWaveSurfer,100);
     // Show cached brief on load if available
     if(l.brief&&(l.brief.core_points||l.brief.sections)){setTimeout(()=>renderBrief(l.brief),150);}
+    else if(l.briefStatus==='generating'){setTimeout(()=>generateBrief(),300);}
   }else if(l.status==='uploaded'){
     h+=`<div class="emp"><div class="ic">⏳</div><h2>等待处理</h2><p>音频已上传，尚未开始AI分析</p><button class="btn btn-o btn-sm" style="margin-top:8px;" onclick="goPage('course','${c.id}')">返回课程页</button></div>`;
   }else if(l.status==='error'){
@@ -1044,6 +1047,9 @@ function switchLeftTab(idx){
       if (!_cl) return;
       if (_cl.brief && (_cl.brief.core_points || _cl.brief.sections)) {
         renderBrief(_cl.brief);
+      } else if (_cl.briefStatus === 'generating') {
+        lp.innerHTML = `<div class="brief-load"><span class="spin"></span> 速览正在生成中...<br><span style="font-size:.72em;color:var(--t3);">正在恢复生成...</span></div>`;
+        setTimeout(() => generateBrief(), 200);
       } else {
         lp.innerHTML = `<div class="brief-gen">
           <div class="bg-icon">📋</div>
@@ -1119,6 +1125,17 @@ async function generateBrief(){
   const l=_cl;
   if(!l.transcript){alert('没有文稿，无法生成速览');return;}
 
+  // Guard: prevent double-click / re-entry while already generating
+  if(l.briefStatus==='generating'){
+    const lp=document.getElementById('lp');
+    if(lp)lp.innerHTML='<div class="brief-load"><span class="spin"></span> 🤖 AI正在生成课堂速览...<br><span style="font-size:.72em;color:var(--t3);">请等待当前生成完成</span></div>';
+    return;
+  }
+
+  // Mark generating state and persist BEFORE fetch (survives page leave)
+  l.briefStatus='generating';
+  DB.updateLecture(_cc.id,_cl.id,{briefStatus:'generating'});
+
   const lp=document.getElementById('lp');
   if(lp)lp.innerHTML='<div class="brief-load"><span class="spin"></span> 🤖 AI正在生成课堂速览...<br><span style="font-size:.72em;color:var(--t3);">提取核心要点、例子、自测题、概念关系...</span></div>';
 
@@ -1131,13 +1148,16 @@ async function generateBrief(){
     if(!r.ok){const et=await r.text();throw new Error('生成失败('+r.status+'): '+et.substring(0,120));}
     const data=await r.json();
 
-    // Save to lecture
+    // Save brief + mark ready
     l.brief=data;
-    DB.updateLecture(_cc.id,_cl.id,{brief:data});
+    l.briefStatus='ready';
+    DB.updateLecture(_cc.id,_cl.id,{brief:data,briefStatus:'ready'});
 
     renderBrief(data);
   }catch(e){
     console.error(e);
+    l.briefStatus='error';
+    DB.updateLecture(_cc.id,_cl.id,{briefStatus:'error'});
     if(lp)lp.innerHTML=`<div class="card" style="border-color:var(--danger);text-align:center;cursor:default;"><strong style="color:var(--danger);">❌ ${e.message}</strong><p style="font-size:.78em;margin-top:4px;">后端运行中？需设置 DEEPSEEK_API_KEY</p><button class="btn btn-o btn-sm" style="margin-top:8px;" onclick="generateBrief()">🔄 重试</button></div>`;
   }
 }
